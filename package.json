@@ -1,0 +1,30 @@
+{
+  "name": "bohnanza",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cpero/tts_bohnanza.git"
+  },
+  "author": "Cody Pero",
+  "license": "ISC",
+  "scripts": {
+    "compile": "tstl && npm run deploy",
+    "deploy": "copy \"build\\bundle.lua\" \"%LOCALAPPDATA%\\Temp\\TabletopSimulator\\Tabletop Simulator Lua\\Global.-1.lua\"",
+    "lint": "eslint .",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@typescript-eslint/eslint-plugin": "^8.19.0",
+    "@typescript-eslint/parser": "^8.19.0",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "tts-types": "^0.0.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.0",
+    "typescript-to-lua": "^1.29.0"
+  }
+}
