@@ -1,4 +1,4 @@
-const GUID_CONST = {
+export const GUID_CONST = {
     decks: {
         coffee: 'eda415',
         wax: '84899d',
