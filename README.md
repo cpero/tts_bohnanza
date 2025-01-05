@@ -20,7 +20,7 @@ Assuming you have those two setup, follow these steps
 
 ### Note on bundling
 
-This repo is set up specifically to work with the `rolandostar.tabletopsimulator-lua` extension, as it uses https://github.com/Benjamin-Dobell/luabundle to bundle output files before sending them to tabletop simulator.
+This repo is set up specifically to work with the `rolandostar.tabletopsimulator-lua` extension, as it uses https://github.com/Benjamin-Dobell/luabundle to bundle output files before sending them to tabletop simulator. **NOTE:** At time of writing, the extension did not work without a workaround which can be found here: https://github.com/KlutzyBubbles/tts-typescript-template/issues/1#issuecomment-2211644958
 
 If you want to build and move the files manually, or use a different editor, you will need to add
 
