@@ -15,6 +15,12 @@ export default [
           endOfLine: "auto",
         },
       ],
+      "@typescript-eslint/no-explicit-any": [
+        "error",
+        {
+          noExplicitAny: false,
+        },
+      ],
     },
   },
   pluginJs.configs.recommended,
