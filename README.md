@@ -22,15 +22,6 @@ Assuming you have those two setup, follow these steps
 
 This repo is set up specifically to work with the `rolandostar.tabletopsimulator-lua` extension, as it uses https://github.com/Benjamin-Dobell/luabundle to bundle output files before sending them to tabletop simulator. **NOTE:** At time of writing, the extension did not work without a workaround which can be found here: https://github.com/KlutzyBubbles/tts-typescript-template/issues/1#issuecomment-2211644958
 
-If you want to build and move the files manually, or use a different editor, you will need to add
-
-```json
-"luaBundle": "bundle.lua",
-"luaBundleEntry": "src/index.ts",
-```
-
-To the `tstl` section of the `tsconfig.json`. However this will then limit your output scripts to 1 as the tstl bundler can only handle 1 input file. So it is _HIGHLY RECCOMMENDED_ to use the vscode extension.
-
 ## Typescript limitations
 
 ### Colors
@@ -62,8 +53,6 @@ For vectors this looks to be required for most inputs anyway so it shouldn't be 
 
 IMO this actually provides more readable code, which is why i kept the change
 
-## Weird TTS Things
-
 ### Global functions
 
 Because of the way `typescript-to-lua` builds the lua files, functions are local by default.
@@ -81,9 +70,3 @@ function onLoad() {
     print('This will never execute')
 }
 ```
-
-### TSTL Config
-
-Because tabletop simulator likes to clear root folder files, you either need to bundle your output, or use the `"luaLibImport": "inline"` in the `tsconfig.json`.
-
-Without this a lib file will be created in the root folder which will work for 1 run in tabletop simulator but reloading the game will throw errors.
