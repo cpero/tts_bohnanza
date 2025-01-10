@@ -1,3 +1,5 @@
+export const GLOBAL = _G as any;
+
 export const GUID_LIST = {
   decks: {
     coffee: "eda415",
@@ -79,4 +81,8 @@ export const GUID_LIST = {
   },
   scriptDrawDeck: "105aa0",
   scriptDiscardDeck: "264205",
+};
+
+export const log = (message: string) => {
+  GLOBAL.log(message);
 };
