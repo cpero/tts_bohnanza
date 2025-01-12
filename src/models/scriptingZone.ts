@@ -1,11 +1,5 @@
 import { BaseModel, BaseModelState } from "./baseModel";
-import {
-  log,
-  GUID_LIST,
-  capitalize,
-  AvailableColors,
-  Positions,
-} from "../utils";
+import { log, PLAYER_LIST, capitalize, AvailableColors } from "../utils";
 
 export interface ScriptingZoneState extends BaseModelState {
   position: string;
@@ -19,10 +13,7 @@ export class ScriptingZone extends BaseModel {
     super(color);
 
     this.position = position;
-    const scriptKey =
-      `script${capitalize(position)}` as keyof (typeof GUID_LIST.players)[keyof typeof GUID_LIST.players];
-    this.guid = GUID_LIST.players[color][scriptKey];
-    log(color + " scripting zone GUID: " + this.guid);
+    this.guid = PLAYER_LIST[color][`script${capitalize(position)}`];
   }
 
   onSave(): ScriptingZoneState {

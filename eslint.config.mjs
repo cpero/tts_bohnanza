@@ -19,6 +19,7 @@ export default [
         "error",
         {
           noExplicitAny: false,
+          noImplicitAny: false,
         },
       ],
     },

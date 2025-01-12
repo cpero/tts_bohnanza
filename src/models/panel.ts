@@ -1,7 +1,7 @@
 import { BaseModel, BaseModelState } from "./baseModel";
 import {
   log,
-  GUID_LIST,
+  PLAYER_LIST,
   capitalize,
   AvailableColors,
   Positions,
@@ -19,14 +19,7 @@ export class Panel extends BaseModel {
     super(color);
 
     this.position = position;
-    log("Position: " + position);
-    log(JSON.stringify(GUID_LIST.players[color]));
-    this.guid =
-      GUID_LIST.players[color][
-        `panel${capitalize(position)}` as keyof (typeof GUID_LIST.players)[keyof typeof GUID_LIST.players]
-      ];
-
-    log(color + " panel GUID: " + this.guid);
+    this.guid = PLAYER_LIST[color][`panel${capitalize(position)}`];
   }
 
   onSave(): PanelState {

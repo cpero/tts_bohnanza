@@ -1,11 +1,5 @@
 import { BaseModel, BaseModelState } from "./baseModel";
-import {
-  log,
-  GUID_LIST,
-  Positions,
-  positions,
-  AvailableColors,
-} from "../utils";
+import { log, positions, AvailableColors, PLAYER_LIST } from "../utils";
 import { Panel, PanelState } from "./panel";
 import { ScriptingZone, ScriptingZoneState } from "./scriptingZone";
 
@@ -24,12 +18,11 @@ export class Player extends BaseModel {
   constructor(color: AvailableColors) {
     super(color);
 
-    this.handGUID = GUID_LIST.players[color].hand;
-    log(color + " player hand GUID: " + this.handGUID);
+    this.handGUID = PLAYER_LIST[color].hand;
 
     positions.forEach((position) => {
       this.panels[position] = new Panel(color, position);
-      // this.scriptingZones[position] = new ScriptingZone(color, position);
+      this.scriptingZones[position] = new ScriptingZone(color, position);
     });
   }
 

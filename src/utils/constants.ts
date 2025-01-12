@@ -7,8 +7,6 @@ export interface GlobalState {
   playerWorkerState?: PlayerWorkerState;
 }
 
-export { GUID_LIST } from "./guidList";
-
 export enum AvailableColors {
   "White" = "White",
   "Red" = "Red",

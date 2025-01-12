@@ -12,23 +12,17 @@ export class PlayerWorker {
     log("Iniializing seated players.");
 
     Object.values(GLOBAL.getSeatedPlayers()).forEach((playerColor) => {
-      log("Player color: " + playerColor);
       this.seatedPlayers[playerColor as AvailableColors] = new Player(
         playerColor as AvailableColors
       );
     });
 
-    log("Seated players: " + this.seatedPlayers.length);
-
-    Object.keys(this.seatedPlayers).forEach((key) => {
-      log("Seated player: " + key);
-    });
+    log("# of seated players: " + Object.keys(this.seatedPlayers).length);
   }
 
   onSave(): PlayerWorkerState {
     const seatedPlayers: { [key: string]: any } = {};
 
-    // TODO: Implement this
     Object.entries(this.seatedPlayers).forEach(([color, player]) => {
       seatedPlayers[color] = player.onSave();
     });
