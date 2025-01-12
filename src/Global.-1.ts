@@ -1,51 +1,43 @@
-import { GLOBAL } from "./utils/constants";
+import { GLOBAL, GlobalState } from "./utils/constants";
 import { PlayerWorker } from "./workers/playerWorker";
 
-interface PlayerState {
-  init: boolean;
-  seatedPlayers?: {
-    [playerColor: string]: Player;
-  };
-}
-
-let state: PlayerState;
-let playerWorker: PlayerWorker;
+let state: GlobalState;
+const playerWorker = new PlayerWorker();
 
 GLOBAL.onLoad = (script_state: string) => {
-  initWorkers();
-
   if (script_state === "") {
     log("State is empty. Initializing state.");
 
     state = initState();
-    log("State: " + JSON.encode(state));
   } else {
     log("Loading state.");
-    log("State: " + JSON.decode(script_state));
     state = JSON.decode(script_state);
-  }
 
-  for (const [key, value] of pairs(state)) {
-    print(tostring(key) + ": " + tostring(value));
+    if (state.playerWorkerState) {
+      playerWorker.onLoad(state.playerWorkerState);
+    }
   }
 
   return JSON.encode(state);
 };
 
 GLOBAL.onSave = () => {
+  // log("Saving state.");
+  state = stateSnapshot();
   return JSON.encode(state);
 };
 
-const initState = () => {
-  // TODO: Move this to a button click event.
-  log("Init seated players.");
-  playerWorker.initSeatedPlayers();
+const stateSnapshot = (): GlobalState => {
+  state = {
+    ...state,
+    playerWorkerState: playerWorker.onSave(),
+  };
 
+  return state;
+};
+
+const initState = (): GlobalState => {
   return {
     init: true,
   };
-};
-
-const initWorkers = () => {
-  playerWorker = new PlayerWorker();
 };

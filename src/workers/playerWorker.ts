@@ -1,44 +1,52 @@
-import { GLOBAL, log } from "../utils/constants";
+import { GLOBAL, log, AvailableColors } from "../utils/constants";
 import { Player } from "../models/player";
 
-// Singleton class that manages various player operations.
-export class PlayerWorker {
-  seatedPlayers: Player[] = [];
+export interface PlayerWorkerState {
+  seatedPlayers: { [key: string]: Player };
+}
 
-  constructor() {
-    log("Initializing player worker.");
-  }
+export class PlayerWorker {
+  seatedPlayers: { [key: string]: Player } = {};
 
   initSeatedPlayers() {
-    log("Init seated players.");
+    log("Iniializing seated players.");
 
-    this.seatedPlayers = GLOBAL.getSeatedPlayers().map(
+    this.seatedPlayers = GLOBAL.getSeatedPlayers().forEach(
       (playerColor: string) => {
-        const player = new Player();
-        player.color = playerColor;
-
-        return player;
+        this.seatedPlayers[playerColor] = new Player(
+          playerColor as AvailableColors
+        );
       }
     );
 
     log("Seated players: " + this.seatedPlayers.length);
 
-    this.seatedPlayers.forEach((player) => {
-      log(player.color);
+    Object.keys(this.seatedPlayers).forEach((key) => {
+      log("Seated player: " + key);
     });
   }
 
-  toJson() {
-    return this.seatedPlayers
-      .map((player) => {
-        return player;
-      })
-      .reduce(
-        (acc, player) => {
-          acc[player.color] = player;
-          return acc;
-        },
-        {} as { [playerColor: string]: Player }
-      );
+  onSave(): PlayerWorkerState {
+    const seatedPlayers: { [key: string]: any } = {};
+
+    // TODO: Implement this
+    Object.entries(this.seatedPlayers).forEach(([color, player]) => {
+      seatedPlayers[color] = player.onSave();
+    });
+
+    return {
+      seatedPlayers,
+    };
+  }
+
+  onLoad(scriptState: PlayerWorkerState) {
+    log("PlayerWorker onLoad");
+
+    Object.entries(scriptState.seatedPlayers).forEach(
+      ([color, playerState]) => {
+        this.seatedPlayers[color] = new Player(color as AvailableColors);
+        this.seatedPlayers[color].onLoad(playerState);
+      }
+    );
   }
 }
