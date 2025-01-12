@@ -1,4 +1,4 @@
-import { GLOBAL, log, AvailableColors } from "../utils/constants";
+import { GLOBAL, log, AvailableColors } from "../utils";
 import { Player } from "../models/player";
 
 export interface PlayerWorkerState {
@@ -11,13 +11,12 @@ export class PlayerWorker {
   initSeatedPlayers() {
     log("Iniializing seated players.");
 
-    this.seatedPlayers = GLOBAL.getSeatedPlayers().forEach(
-      (playerColor: string) => {
-        this.seatedPlayers[playerColor] = new Player(
-          playerColor as AvailableColors
-        );
-      }
-    );
+    Object.values(GLOBAL.getSeatedPlayers()).forEach((playerColor) => {
+      log("Player color: " + playerColor);
+      this.seatedPlayers[playerColor as AvailableColors] = new Player(
+        playerColor as AvailableColors
+      );
+    });
 
     log("Seated players: " + this.seatedPlayers.length);
 

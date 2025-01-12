@@ -1,17 +1,17 @@
-import { log } from "../utils/constants";
+import { AvailableColors, log } from "../utils";
 
 export interface BaseModelState {
   guid: string;
-  color: string;
+  color: AvailableColors;
   state: { [key: string]: string | number | boolean };
 }
 
 export class BaseModel {
   guid!: string;
-  color: string;
+  color: AvailableColors;
   state: { [key: string]: string | number | boolean };
 
-  constructor(color: string) {
+  constructor(color: AvailableColors) {
     this.color = color;
     this.state = {};
   }

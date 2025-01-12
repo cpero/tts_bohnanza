@@ -9,10 +9,6 @@ export interface GlobalState {
 
 export { GUID_LIST } from "./guidList";
 
-export const log = (message: string) => {
-  GLOBAL.log(message);
-};
-
 export enum AvailableColors {
   "White" = "White",
   "Red" = "Red",
@@ -22,3 +18,7 @@ export enum AvailableColors {
   "Blue" = "Blue",
   "Purple" = "Purple",
 }
+
+export type Positions = "left" | "middle" | "right";
+
+export const positions: Positions[] = ["left", "middle", "right"];

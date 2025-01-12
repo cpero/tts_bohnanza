@@ -2,7 +2,6 @@ import { GLOBAL, GlobalState } from "./utils/constants";
 import { PlayerWorker } from "./workers/playerWorker";
 
 let state: GlobalState;
-const playerWorker = new PlayerWorker();
 
 GLOBAL.onLoad = (script_state: string) => {
   if (script_state === "") {
@@ -13,7 +12,12 @@ GLOBAL.onLoad = (script_state: string) => {
     log("Loading state.");
     state = JSON.decode(script_state);
 
+    if (state.init) {
+      state = initState();
+    }
+
     if (state.playerWorkerState) {
+      const playerWorker = new PlayerWorker();
       playerWorker.onLoad(state.playerWorkerState);
     }
   }
@@ -28,6 +32,8 @@ GLOBAL.onSave = () => {
 };
 
 const stateSnapshot = (): GlobalState => {
+  const playerWorker = new PlayerWorker();
+
   state = {
     ...state,
     playerWorkerState: playerWorker.onSave(),
@@ -37,6 +43,9 @@ const stateSnapshot = (): GlobalState => {
 };
 
 const initState = (): GlobalState => {
+  const playerWorker = new PlayerWorker();
+  playerWorker.initSeatedPlayers();
+
   return {
     init: true,
   };
