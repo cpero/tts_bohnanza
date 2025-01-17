@@ -5,34 +5,34 @@ local GuidList = require('src.util.guidList')
 local Functions = require('src.util.functions')
 
 local StartGameButton = require('src.components.startGameButton')
-local ScriptingZones = require('src.models.scriptingZones')
 
 local ObjectList = {}
 local State = {
 	Init = false,
 	Started = false,
-	SeatedPlayers = {},
+	SeatedPlayers = {}
 }
 
 function onLoad(save_state)
 	Functions.printLogFiller()
 	log('Bohnanza onLoad called')
 	print('Welcome to Bohnanza!')
-	loadObjects()
 
 	if save_state ~= '' then
 		log('Loading save state')
 		State = JSON.decode(save_state)
 	end
 
+	loadObjects()
+
 	if not State.Init then
-		ScriptingZones.initCounters(ObjectList, State)
 		StartGameButton.create(ObjectList, State)
 		State.Init = true
 	end
 end
 
 function onSave()
+	-- return JSON.encode(State)
 	return ''
 end
 

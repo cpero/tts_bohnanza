@@ -1,25 +1,10 @@
 local ScriptingZones = {}
 
-Functions = require('src.util.functions')
-
 local State
 local ObjectList
 
 local UnlockeFieldColor = "#1F2433"
 local LockeFieldColor = "#320B0B"
-
-function ScriptingZones.initCounters(GObjectList, GState)
-  ObjectList = GObjectList
-  State = GState
-
-  for _, Player in pairs(ObjectList.Players) do
-    -- Player.ScriptLeft.spawnObject({
-    --   type = 'Checker_black',
-    --   position = { 0, -1, -10 },
-    --   scale = { 2, 2, 2 },
-    -- })
-  end
-end
 
 function ScriptingZones.StartGame(GObjectList, GState)
   ObjectList = GObjectList
@@ -45,14 +30,14 @@ end
 function ScriptingZones.createPanelUI(ScriptingZone, IsUnlocked)
   ScriptingZone.setPosition(ScriptingZone.getPosition() + vector(0, 0.1, 0))
   if IsUnlocked then
-    -- ScriptingZone.UI.setXml(unlockedPanelXml(ScriptingZone.getGUID()))
-    -- ScriptingZone.setSnapPoints({
-    --   {
-    --     position = { 0, 0, 0.4 },
-    --     rotation = { 0, 0, 0 },
-    --     rotation_snap = true
-    --   },
-    -- })
+    ScriptingZone.UI.setXml(unlockedPanelXml())
+    ScriptingZone.setSnapPoints({
+      {
+        position = { 0, 0, 0.4 },
+        rotation = { 0, 0, 0 },
+        rotation_snap = true
+      },
+    })
   else
     ScriptingZone.UI.setXml(lockedPanelXml())
     ScriptingZone.createButton({
@@ -65,11 +50,9 @@ function ScriptingZones.createPanelUI(ScriptingZone, IsUnlocked)
   end
 end
 
-function unlockedPanelXml(ScriptingZoneGuid)
-  return "<Panel position='0, 0, 0' height='350' width='175'><InputField position='0, -100, -10' id='" ..
-      ScriptingZoneGuid ..
-      "_fieldCounter' color='White' fontSize='20'>0</InputField><Panel color='" ..
-      UnlockeFieldColor .. "'></Panel></Panel>"
+function unlockedPanelXml()
+  return "<Panel position='0, 0, 0' height='350' width='175' color='" ..
+      UnlockeFieldColor .. "'></Panel>"
 end
 
 function lockedPanelXml()

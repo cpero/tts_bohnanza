@@ -1,6 +1,7 @@
 local StartGameButton = {}
 
 local ScriptingZones = require('src.models.scriptingZones')
+local Counters = require('src.models.counters')
 
 local drawDeck
 local State
@@ -26,11 +27,13 @@ function StartGameButton.create(GObjectList, GState)
 end
 
 function onClick(_, _, _)
-	State.SeatedPlayers = getSeatedPlayers()
-	State.Started = true
 	log('Start Game button clicked')
 
+	State.SeatedPlayers = getSeatedPlayers()
+	State.Started = true
+
 	ScriptingZones.StartGame(ObjectList, State)
+	Counters.StartGame(ObjectList, State)
 
 	drawDeck.clearButtons()
 end
