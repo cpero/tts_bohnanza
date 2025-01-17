@@ -1,10 +1,11 @@
 local ScriptingZones = {}
 
+local Constants = require('src.util.constants')
+
 local State
 local ObjectList
 
-local UnlockeFieldColor = "#1F2433"
-local LockeFieldColor = "#320B0B"
+local LockeFieldColor = "#1F1F1F"
 
 function ScriptingZones.StartGame(GObjectList, GState)
   ObjectList = GObjectList
@@ -22,18 +23,18 @@ function ScriptingZones.showPanels(Color)
   local ScriptMiddle = Player.ScriptMiddle
   local ScriptRight = Player.ScriptRight
 
-  ScriptingZones.createPanelUI(ScriptLeft, true)
-  ScriptingZones.createPanelUI(ScriptMiddle, true)
-  ScriptingZones.createPanelUI(ScriptRight, false)
+  ScriptingZones.createPanelUI(Color, ScriptLeft, true)
+  ScriptingZones.createPanelUI(Color, ScriptMiddle, true)
+  ScriptingZones.createPanelUI(Color, ScriptRight, false)
 end
 
-function ScriptingZones.createPanelUI(ScriptingZone, IsUnlocked)
+function ScriptingZones.createPanelUI(Color, ScriptingZone, IsUnlocked)
   ScriptingZone.setPosition(ScriptingZone.getPosition() + vector(0, 0.1, 0))
   if IsUnlocked then
-    ScriptingZone.UI.setXml(unlockedPanelXml())
+    ScriptingZone.UI.setXml(unlockedPanelXml(Color))
     ScriptingZone.setSnapPoints({
       {
-        position = { 0, 0, 0.4 },
+        position = { 0, 1, 0 },
         rotation = { 0, 0, 0 },
         rotation_snap = true
       },
@@ -45,19 +46,19 @@ function ScriptingZones.createPanelUI(ScriptingZone, IsUnlocked)
       label = 'Unlock Field',
       width = 700,
       height = 100,
-      position = { 0, 0, 1.25 },
+      position = { 0, 0, 0 },
     })
   end
 end
 
-function unlockedPanelXml()
-  return "<Panel position='0, 0, 0' height='350' width='175' color='" ..
-      UnlockeFieldColor .. "'></Panel>"
+function unlockedPanelXml(Color)
+  return "<Panel position='0, 8, 0' height='290' width='200' color='" ..
+      Constants.UnlockedFieldColors[Color] .. "'></Panel>"
 end
 
 function lockedPanelXml()
-  return "<Panel height='350' width='175' color='" ..
-      LockeFieldColor .. "' position='0 0 -1'></Panel>"
+  return "<Panel height='290' width='200' color='" ..
+      LockeFieldColor .. "' position='0, 9, 0'></Panel>"
 end
 
 function onClickUnlock(ScriptingZoneEl, _, _)
