@@ -1,0 +1,14 @@
+{
+  "name": "bohnanza",
+  "version": "1.0",
+  "main": "index.js",
+  "author": "Cody Pero",
+  "license": "MIT",
+  "scripts": {
+    "prettier": "prettier -w **/*.lua"
+  },
+  "devDependencies": {
+    "@prettier/plugin-lua": "^0.0.3",
+    "prettier": "^3.4.2"
+  }
+}

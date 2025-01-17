@@ -4,5 +4,25 @@
   "editor.rulers": [120],
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
-  "Lua.diagnostics.disable": ["lowercase-global"]
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "Lua.diagnostics.disable": [
+    "lowercase-global",
+    "undefined-global",
+    "undefined-doc-name"
+  ],
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "*.lua",
+        "cmd": "yarn prettier -w ${file}"
+      }
+    ]
+  },
+  "[lua]": {
+    "editor.defaultFormatter": "sumneko.lua"
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml",
+    "editor.tabSize": 2
+  }
 }
