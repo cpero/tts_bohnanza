@@ -1,6 +1,5 @@
 local StartGameButton = {}
 
-local Panels = require('src.models.panels')
 local ScriptingZones = require('src.models.scriptingZones')
 
 local drawDeck
@@ -22,7 +21,7 @@ function StartGameButton.create(GObjectList, GState)
 		rotation = { 0, 180, 0 },
 		width = 1000,
 		height = 100,
-		position = { 0.5, 0, -1 },
+		position = { 0.5, -0.45, 0 },
 	})
 end
 

@@ -4,8 +4,8 @@ local Constants = require('src.util.constants')
 local GuidList = require('src.util.guidList')
 local Functions = require('src.util.functions')
 
-local StartGameButton = require('src.components.startGameButton.startGameButton')
-local Panels = require('src.models.panels')
+local StartGameButton = require('src.components.startGameButton')
+local ScriptingZones = require('src.models.scriptingZones')
 
 local ObjectList = {}
 local State = {
@@ -21,15 +21,14 @@ function onLoad(save_state)
 	loadObjects()
 
 	if save_state ~= '' then
+		log('Loading save state')
 		State = JSON.decode(save_state)
 	end
 
 	if not State.Init then
-		for _, Color in ipairs(Constants.AvailableColors) do
-			Panels.hidePanels(ObjectList, Color)
-		end
-
+		ScriptingZones.initCounters(ObjectList, State)
 		StartGameButton.create(ObjectList, State)
+		State.Init = true
 	end
 end
 
@@ -48,12 +47,6 @@ function loadObjects()
 		ObjectList.Players[Color] = {}
 		ObjectList.Players[Color]['Hand'] =
 				getObjectFromGUID(GuidList.Players[Color].Hand)
-		ObjectList.Players[Color]['PanelLeft'] =
-				getObjectFromGUID(GuidList.Players[Color].PanelLeft)
-		ObjectList.Players[Color]['PanelMiddle'] =
-				getObjectFromGUID(GuidList.Players[Color].PanelMiddle)
-		ObjectList.Players[Color]['PanelRight'] =
-				getObjectFromGUID(GuidList.Players[Color].PanelRight)
 		ObjectList.Players[Color]['ScriptLeft'] =
 				getObjectFromGUID(GuidList.Players[Color].ScriptLeft)
 		ObjectList.Players[Color]['ScriptMiddle'] =
