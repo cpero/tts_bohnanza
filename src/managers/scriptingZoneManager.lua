@@ -1,6 +1,7 @@
 local ScriptingZoneManager = {}
 
 local PlayerField = require('src.models.playerField')
+local Functions = require('src.util.functions')
 
 local State
 local ObjectList
@@ -23,7 +24,7 @@ function createPlayerFields(Color)
 
   PlayerField.createField(ObjectList, State, Color, ScriptLeft, true)
   PlayerField.createField(ObjectList, State, Color, ScriptMiddle, true)
-  PlayerField.createField(ObjectList, State, Color, ScriptRight, false)
+  PlayerField.createField(ObjectList, State, Color, ScriptRight, Functions.length(State.SeatedPlayers) < 4)
 end
 
 return ScriptingZoneManager

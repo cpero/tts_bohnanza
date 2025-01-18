@@ -7,7 +7,9 @@ local Counter = require('src.models.counter')
 local LockeFieldColor = "#1F1F1F"
 
 local ObjectList
-local State
+local State = {
+  Counters = {},
+}
 
 function PlayerField.createField(GObjectList, GState, Color, ScriptingZone, IsUnlocked)
   ObjectList = GObjectList
@@ -69,7 +71,7 @@ end
 function updateZone(Zone)
   local Color = Functions.findColorFromObject(ObjectList, Zone.guid)
 
-  if Color ~= "" then
+  if Color ~= "" and State.Counters ~= {} then
     local CounterAnchor = getObjectFromGUID(State.Counters[Color][Zone.guid])
     if CounterAnchor ~= nil then
       Counter.setCheckerValue(Color, CounterAnchor, getLengthOfObjectsInZone(Zone))

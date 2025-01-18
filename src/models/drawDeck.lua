@@ -1,0 +1,3 @@
+local DrawDeck = {}
+
+return DrawDeck
