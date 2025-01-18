@@ -1,7 +1,7 @@
 local Functions = {}
 
-function Functions.printLogFiller()
-	print('--------------------------------------------------')
+function Functions.logFiller()
+	log('--------------------------------------------------')
 end
 
 ---Check if a table contains a value

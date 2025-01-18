@@ -14,7 +14,7 @@ local State = {
 }
 
 function onLoad(save_state)
-	Functions.printLogFiller()
+	Functions.logFiller()
 	log('Bohnanza onLoad called')
 	print('Welcome to Bohnanza!')
 

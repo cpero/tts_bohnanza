@@ -1,34 +1,14 @@
-local ScriptingZones = {}
+local PlayerField = {}
 
 local Constants = require('src.util.constants')
-
-local State
-local ObjectList
-
 local LockeFieldColor = "#1F1F1F"
 
-function ScriptingZones.StartGame(GObjectList, GState)
+local ObjectList
+local State
+
+function PlayerField.createField(GObjectList, GState, Color, ScriptingZone, IsUnlocked)
   ObjectList = GObjectList
   State = GState
-
-  for _, Color in ipairs(State.SeatedPlayers) do
-    ScriptingZones.showPanels(Color)
-  end
-end
-
-function ScriptingZones.showPanels(Color)
-  local Player = ObjectList.Players[Color]
-
-  local ScriptLeft = Player.ScriptLeft
-  local ScriptMiddle = Player.ScriptMiddle
-  local ScriptRight = Player.ScriptRight
-
-  ScriptingZones.createPanelUI(Color, ScriptLeft, true)
-  ScriptingZones.createPanelUI(Color, ScriptMiddle, true)
-  ScriptingZones.createPanelUI(Color, ScriptRight, false)
-end
-
-function ScriptingZones.createPanelUI(Color, ScriptingZone, IsUnlocked)
   ScriptingZone.setPosition(ScriptingZone.getPosition() + vector(0, 0.1, 0))
   if IsUnlocked then
     ScriptingZone.UI.setXml(unlockedPanelXml(Color))
@@ -67,15 +47,7 @@ function onClickUnlock(ScriptingZoneEl, _, _)
   broadcastToAll(Color .. " has unlocked their third field!", Color)
 
   ScriptingZoneEl.clearButtons()
-  ScriptingZones.createPanelUI(ScriptingZoneEl, true)
+  createPanelUI(Color, ScriptingZoneEl, true)
 end
 
-function findColorFromScriptingZone(ScriptingZoneGuid)
-  for Color, Player in pairs(ObjectList.Players) do
-    if Player.ScriptRight.getGUID() == ScriptingZoneGuid then
-      return Color
-    end
-  end
-end
-
-return ScriptingZones
+return PlayerField

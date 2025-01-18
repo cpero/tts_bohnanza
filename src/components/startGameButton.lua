@@ -1,7 +1,7 @@
 local StartGameButton = {}
 
-local ScriptingZones = require('src.models.scriptingZones')
-local Counters = require('src.models.counters')
+local ScriptingZoneManager = require('src.managers.scriptingZoneManager')
+local CounterManager = require('src.managers.counterManager')
 
 local drawDeck
 local State
@@ -32,8 +32,8 @@ function onClick(_, _, _)
 	State.SeatedPlayers = getSeatedPlayers()
 	State.Started = true
 
-	ScriptingZones.StartGame(ObjectList, State)
-	Counters.StartGame(ObjectList, State)
+	ScriptingZoneManager.StartGame(ObjectList, State)
+	CounterManager.StartGame(ObjectList, State)
 
 	drawDeck.clearButtons()
 end
