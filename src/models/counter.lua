@@ -29,6 +29,8 @@ function Counter.createCounter(GObjectList, GState, Color, ScriptingZone)
   Checker.setLock(true)
   Checker.interactable = false
 
+  State.Counters[Color][ScriptingZone.getGUID()] = Checker.getGUID()
+
   Counter.setCheckerValue(Color, Checker, 0)
 end
 

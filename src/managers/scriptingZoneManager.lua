@@ -26,12 +26,4 @@ function createPlayerFields(Color)
   PlayerField.createField(ObjectList, State, Color, ScriptRight, false)
 end
 
-function findColorFromScriptingZone(ScriptingZoneGuid)
-  for Color, Player in pairs(ObjectList.Players) do
-    if Player.ScriptRight.getGUID() == ScriptingZoneGuid then
-      return Color
-    end
-  end
-end
-
 return ScriptingZoneManager

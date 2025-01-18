@@ -1,6 +1,9 @@
 local PlayerField = {}
 
 local Constants = require('src.util.constants')
+local Functions = require('src.util.functions')
+local Counter = require('src.models.counter')
+
 local LockeFieldColor = "#1F1F1F"
 
 local ObjectList
@@ -11,14 +14,7 @@ function PlayerField.createField(GObjectList, GState, Color, ScriptingZone, IsUn
   State = GState
   ScriptingZone.setPosition(ScriptingZone.getPosition() + vector(0, 0.1, 0))
   if IsUnlocked then
-    ScriptingZone.UI.setXml(unlockedPanelXml(Color))
-    ScriptingZone.setSnapPoints({
-      {
-        position = { 0, 1, 0 },
-        rotation = { 0, 0, 0 },
-        rotation_snap = true
-      },
-    })
+    createUnlockedField(ScriptingZone, Color)
   else
     ScriptingZone.UI.setXml(lockedPanelXml())
     ScriptingZone.createButton({
@@ -29,6 +25,17 @@ function PlayerField.createField(GObjectList, GState, Color, ScriptingZone, IsUn
       position = { 0, 0, 0 },
     })
   end
+end
+
+function createUnlockedField(ScriptingZone, Color)
+  ScriptingZone.UI.setXml(unlockedPanelXml(Color))
+  ScriptingZone.setSnapPoints({
+    {
+      position = { 0, 0, 0 },
+      rotation = { 0, 0, 0 },
+      rotation_snap = true
+    },
+  })
 end
 
 function unlockedPanelXml(Color)
@@ -42,12 +49,47 @@ function lockedPanelXml()
 end
 
 function onClickUnlock(ScriptingZoneEl, _, _)
-  local Color = findColorFromScriptingZone(ScriptingZoneEl.getGUID())
-  log('Unlocking panel for ' .. Color)
+  local Color = Functions.findColorFromObject(ObjectList, ScriptingZoneEl.getGUID())
   broadcastToAll(Color .. " has unlocked their third field!", Color)
 
   ScriptingZoneEl.clearButtons()
-  createPanelUI(Color, ScriptingZoneEl, true)
+  createUnlockedField(ScriptingZoneEl, Color)
+end
+
+function onObjectEnterZone(Zone, _)
+  updateZone(Zone)
+end
+
+function onObjectLeaveZone(Zone, _)
+  updateZone(Zone)
+end
+
+---Refreshes the counter with the number of objects in a given zone
+---@param Zone table
+function updateZone(Zone)
+  local Color = Functions.findColorFromObject(ObjectList, Zone.guid)
+
+  if Color ~= "" then
+    local CounterAnchor = getObjectFromGUID(State.Counters[Color][Zone.guid])
+    if CounterAnchor ~= nil then
+      Counter.setCheckerValue(Color, CounterAnchor, getLengthOfObjectsInZone(Zone))
+    end
+  end
+end
+
+---Find the number of cards occupying a zone
+---@param Zone table
+---@return integer
+function getLengthOfObjectsInZone(Zone)
+  local size = 0
+  for _, Object in ipairs(Zone.getObjects(true)) do
+    if Object.type == "Card" then
+      size = size + 1
+    elseif Object.type == "Deck" then
+      size = size + Functions.length(Object.getObjects())
+    end
+  end
+  return size
 end
 
 return PlayerField

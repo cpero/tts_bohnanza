@@ -29,4 +29,22 @@ function Functions.length(table)
 	return count
 end
 
+---Find the player color based on a provided GUID
+---@param ObjectList table
+---@param ObjectGuid string
+---@return string
+function Functions.findColorFromObject(ObjectList, ObjectGuid)
+	local FoundColor = ""
+	for Color, Player in pairs(ObjectList.Players) do
+		if FoundColor == "" then
+			for _, Value in pairs(Player) do
+				if Value.getGUID() == ObjectGuid then
+					FoundColor = Color
+				end
+			end
+		end
+	end
+	return FoundColor
+end
+
 return Functions
