@@ -24,31 +24,34 @@ end
 
 function createVariantButton()
   local VariantToggleButton = getObjectFromGUID(GuidList.Buttons.VariantToggle)
-  VariantToggleButton.UI.setXml([[
-    <VerticalLayout id="VariantSection" position="0, -100, -10"  height="1700" width="2000" spacing="150">
-        <Button id="VariantToggleButton" color="Red" text="Enable Variant Mode?" textColor="Black" fontSize="100" onClick="onClickVariantToggleButton" scale="2,2,2" rotation="0, 0, 0" />
-        <Text id="VariantStatus" fontSize="150" color="White" text="Current Status: Disabled" />
-        <Text fontSize="100" color="White">Adds Cocoa, Wax, and Coffee beans to the deck.</Text>
-        <Text fontSize="100" color="White">Required for 6+ players.</Text>
-    </VerticalLayout>
-  ]])
+  local StartGameButton = getObjectFromGUID(GuidList.Buttons.StartGame)
 
   Wait.frames(function()
+    if StartGameButton.UI.getAttribute('StartGameButton', 'active') == 'false' then
+      return
+    end
+
     local NumPlayers = Functions.length(getSeatedPlayers())
     if NumPlayers >= 6 then
-      VariantToggleButton.UI.setAttributes('VariantToggleButton', {
-        color = 'Green',
-        textColor = 'Black',
-        interactable = 'false',
-        text = 'Variant Mode Required for 6+ Players'
-      })
-      VariantToggleButton.UI.setAttribute('VariantToggleButton', 'color', 'Green')
-      VariantToggleButton.UI.setAttribute('VariantToggleButton', 'textColor', 'Black')
-      VariantToggleButton.UI.setAttribute('VariantToggleButton', 'interactable', 'false')
-      VariantToggleButton.UI.setAttribute('VariantToggleButton', 'text', 'Variant Mode Required for 6+ Players')
-      VariantToggleButton.UI.setAttribute('VariantStatus', 'text', "Current status: Enabled")
+      VariantToggleButton.UI.setXml([[
+        <VerticalLayout id="VariantSection" position="0, -100, -10"  height="1700" width="2000" spacing="150">
+            <Button id="VariantToggleButton" color="Green" text="Variant Mode Required for 6+ Players" textColor="White" fontSize="100" onClick="onClickVariantToggleButton" scale="2,2,2" rotation="0, 0, 0" interactable="false" />
+            <Text id="VariantStatus" fontSize="150" color="White" text="Current Status: Enabled" />
+            <Text fontSize="100" color="White">Adds Cocoa, Wax, and Coffee beans to the deck.</Text>
+            <Text fontSize="100" color="White">Required for 6+ players.</Text>
+        </VerticalLayout>
+      ]])
+    else
+      VariantToggleButton.UI.setXml([[
+        <VerticalLayout id="VariantSection" position="0, -100, -10"  height="1700" width="2000" spacing="150">
+            <Button id="VariantToggleButton" color="Red" text="Enable Variant Mode?" textColor="Black" fontSize="100" onClick="onClickVariantToggleButton" scale="2,2,2" rotation="0, 0, 0" />
+            <Text id="VariantStatus" fontSize="150" color="White" text="Current Status: Disabled" />
+            <Text fontSize="100" color="White">Adds Cocoa, Wax, and Coffee beans to the deck.</Text>
+            <Text fontSize="100" color="White">Required for 6+ players.</Text>
+        </VerticalLayout>
+      ]])
     end
-  end, 20)
+  end, 5)
 end
 
 function onClickVariantToggleButton(_, _, _)
