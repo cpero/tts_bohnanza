@@ -1,23 +1,17 @@
 local CounterManager = {}
 
 local Counter = require('src.models.counter')
+local State = require('src.models.state')
 
-local ObjectList
-local State
-
-function CounterManager.StartGame(GObjectList, GState)
-  ObjectList = GObjectList
-  State = GState
-
+function CounterManager.StartGame()
   log('Spawning initial counters')
-  State.Counters = {}
-  for _, Color in pairs(State.SeatedPlayers) do
-    State.Counters[Color] = {}
+  for _, Color in pairs(State.getState().SeatedPlayers) do
+    State.initializeCounterColor(Color)
 
-    local Player = ObjectList.Players[Color]
-    Counter.createCounter(ObjectList, State, Color, Player.ScriptLeft)
-    Counter.createCounter(ObjectList, State, Color, Player.ScriptMiddle)
-    Counter.createCounter(ObjectList, State, Color, Player.ScriptRight)
+    local Player = State.getObjectList().Players[Color]
+    Counter.createCounter(Color, Player.ScriptLeft)
+    Counter.createCounter(Color, Player.ScriptMiddle)
+    Counter.createCounter(Color, Player.ScriptRight)
   end
 end
 

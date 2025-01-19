@@ -1,41 +1,42 @@
 local StartGameButton = {}
 
+local Constants = require('src.util.constants')
+local Functions = require('src.util.functions')
 local ScriptingZoneManager = require('src.managers.scriptingZoneManager')
 local CounterManager = require('src.managers.counterManager')
+local VariantToggleButton = require('src.components.variantToggleButton')
+local State = require('src.models.state')
 
-local drawDeck
-local State
-local ObjectList
+function StartGameButton.init()
+  log('Creating Start Game button')
 
---- Creates the button used to start the game script
----@param GObjectList table The global list of objest
----@param GState table The global state of the game
-function StartGameButton.create(GObjectList, GState)
-	ObjectList = GObjectList
-	State = GState
+  local StartGameButton = State.getObjectList().Buttons.StartGame
 
-	drawDeck = ObjectList.ScriptDrawDeck;
-	drawDeck.createButton({
-		click_function = 'onClick',
-		label = 'Start Game',
-		tooltip = 'Click me once all players are seated!',
-		rotation = { 0, 180, 0 },
-		width = 1000,
-		height = 100,
-		position = { 0.5, -0.45, 0 },
-	})
+  StartGameButton.createButton({
+    click_function = 'onClickStartButton',
+    function_owner = self,
+    label = 'Start Game',
+    position = { 0, 0.5, 0 },
+    scale = { 2, 2, 2 },
+    rotation = { 0, 180, 0 },
+    width = 2000,
+    height = 500,
+    font_size = 200,
+    color = 'White',
+    tooltip = 'Start the game with the current seated players'
+  })
+
+  -- VariantToggleButton.init(ObjectList)
 end
 
-function onClick(_, _, _)
-	log('Start Game button clicked')
+function onClickStartButton(_, _, _)
+  log('Start Game button clicked')
 
-	State.SeatedPlayers = getSeatedPlayers()
-	State.Started = true
+  State.updateValue('Started', true)
+  State.updateValue('SeatedPlayers', getSeatedPlayers())
 
-	ScriptingZoneManager.StartGame(ObjectList, State)
-	CounterManager.StartGame(ObjectList, State)
-
-	drawDeck.clearButtons()
+  -- ScriptingZoneManager.StartGame(ObjectList)
+  -- CounterManager.StartGame(ObjectList)
 end
 
 return StartGameButton

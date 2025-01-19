@@ -1,17 +1,9 @@
 require('vscode/console')
 
-local Constants = require('src.util.constants')
-local GuidList = require('src.util.guidList')
 local Functions = require('src.util.functions')
-
+local DrawDeck = require('src.models.drawDeck')
 local StartGameButton = require('src.components.startGameButton')
-
-local ObjectList = {}
-local State = {
-	Init = false,
-	Started = false,
-	SeatedPlayers = {}
-}
+local State = require('src.models.state')
 
 function onLoad(save_state)
 	Functions.logFiller()
@@ -23,38 +15,25 @@ function onLoad(save_state)
 		State = JSON.decode(save_state)
 	end
 
-	loadObjects()
+	State.loadObjectList()
 
 	if not State.Init then
-		StartGameButton.create(ObjectList, State)
-		State.Init = true
+		DrawDeck.init()
+		StartGameButton.init()
+		State.updateValue('Init', true)
 	end
+
+	-- spawnObject({
+	-- 	type = 'Checker_red',
+	-- 	position = { 0, 10, 50 },
+	-- 	scale = { 1, 1, 1 },
+	-- 	rotation = { 0, 0, 0 }
+	-- })
 end
 
 function onSave()
+	log(State.getState())
+
 	-- return JSON.encode(State)
 	return ''
-end
-
-function loadObjects()
-	ObjectList.Decks = {}
-	for DeckName, Guid in pairs(GuidList.Decks) do
-		ObjectList.Decks[DeckName] = getObjectFromGUID(Guid)
-	end
-
-	ObjectList.Players = {}
-	for _, Color in ipairs(Constants.AvailableColors) do
-		ObjectList.Players[Color] = {}
-		ObjectList.Players[Color]['Hand'] =
-				getObjectFromGUID(GuidList.Players[Color].Hand)
-		ObjectList.Players[Color]['ScriptLeft'] =
-				getObjectFromGUID(GuidList.Players[Color].ScriptLeft)
-		ObjectList.Players[Color]['ScriptMiddle'] =
-				getObjectFromGUID(GuidList.Players[Color].ScriptMiddle)
-		ObjectList.Players[Color]['ScriptRight'] =
-				getObjectFromGUID(GuidList.Players[Color].ScriptRight)
-	end
-
-	ObjectList.ScriptDiscardDeck = getObjectFromGUID(GuidList.ScriptDiscardDeck)
-	ObjectList.ScriptDrawDeck = getObjectFromGUID(GuidList.ScriptDrawDeck)
 end

@@ -3,17 +3,11 @@ local PlayerField = {}
 local Constants = require('src.util.constants')
 local Functions = require('src.util.functions')
 local Counter = require('src.models.counter')
+local State = require('src.models.state')
 
 local LockeFieldColor = "#1F1F1F"
 
-local ObjectList
-local State = {
-  Counters = {},
-}
-
-function PlayerField.createField(GObjectList, GState, Color, ScriptingZone, IsUnlocked)
-  ObjectList = GObjectList
-  State = GState
+function PlayerField.createField(Color, ScriptingZone, IsUnlocked)
   ScriptingZone.setPosition(ScriptingZone.getPosition() + vector(0, 0.1, 0))
   if IsUnlocked then
     createUnlockedField(ScriptingZone, Color)
@@ -47,11 +41,11 @@ end
 
 function lockedPanelXml()
   return "<Panel height='290' width='200' color='" ..
-      LockeFieldColor .. "' position='0, 9, 0'></Panel>"
+      LockeFieldColor .. "' position='0, 8, 0'></Panel>"
 end
 
 function onClickUnlock(ScriptingZoneEl, _, _)
-  local Color = Functions.findColorFromObject(ObjectList, ScriptingZoneEl.getGUID())
+  local Color = Functions.findColorFromObject(State.getObjectList(), ScriptingZoneEl.getGUID())
   broadcastToAll(Color .. " has unlocked their third field!", Color)
 
   ScriptingZoneEl.clearButtons()
@@ -69,10 +63,10 @@ end
 ---Refreshes the counter with the number of objects in a given zone
 ---@param Zone table
 function updateZone(Zone)
-  local Color = Functions.findColorFromObject(ObjectList, Zone.guid)
+  local Color = Functions.findColorFromObject(State.getObjectList(), Zone.guid)
 
-  if Color ~= "" and State.Counters ~= {} then
-    local CounterAnchor = getObjectFromGUID(State.Counters[Color][Zone.guid])
+  if Color ~= "" and State.getState().Counters ~= {} then
+    local CounterAnchor = getObjectFromGUID(State.getState().Counters[Color][Zone.guid])
     if CounterAnchor ~= nil then
       Counter.setCheckerValue(Color, CounterAnchor, getLengthOfObjectsInZone(Zone))
     end

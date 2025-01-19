@@ -1,16 +1,20 @@
 local GuidList = {
 	Decks = {
-		Coffee = 'eda415',
-		Wax = '84899d',
-		Red = 'fc4f11',
-		Garden = '11fc02',
-		Blue = 'f3a88f',
-		Chili = '1e490c',
-		Stink = 'a7bf33',
-		Black = '0bd6af',
-		Soy = '3e8500',
-		Green = 'f2d49c',
-		Cocoa = 'd228c8',
+		Stanard = {
+			Red = 'fc4f11',
+			Garden = '11fc02',
+			Blue = 'f3a88f',
+			Chili = '1e490c',
+			Stink = 'a7bf33',
+			Black = '0bd6af',
+			Soy = '3e8500',
+			Green = 'f2d49c',
+		},
+		Variant = {
+			Cocoa = 'd228c8',
+			Wax = 'ea02cd',
+			Coffee = '8e8d4e',
+		}
 	},
 	Players = {
 		White = {
@@ -58,6 +62,10 @@ local GuidList = {
 	},
 	ScriptDrawDeck = '105aa0',
 	ScriptDiscardDeck = '264205',
+	State = 'eef68e',
+	Buttons = {
+		StartGame = '67f917',
+	}
 }
 
 return GuidList
