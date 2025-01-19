@@ -6,6 +6,7 @@ local GuidList = require('src.util.guidList')
 local GState = {
   Init = false,
   Started = false,
+  Variant = false,
   SeatedPlayers = {},
   Counters = {},
 }
@@ -55,6 +56,17 @@ function State.loadObjectList()
   for ButtonName, Guid in pairs(GuidList.Buttons) do
     GObjectList.Buttons[ButtonName] = getObjectFromGUID(Guid)
   end
+
+  GObjectList.Table = getObjectFromGUID(GuidList.Table)
+
+  initHiddenObjects()
+end
+
+function initHiddenObjects()
+  GObjectList.State.setInvisibleTo(Constants.AvailableColors)
+  GObjectList.State.setName('State Checker')
+  GObjectList.State.locked = true
+  GObjectList.State.interactable = false
 end
 
 function State.setState(GState)
@@ -62,7 +74,14 @@ function State.setState(GState)
 end
 
 function State.getState()
+  getButtonState()
   return GState
+end
+
+function getButtonState()
+  GState.Started = getObjectFromGUID(GuidList.Buttons.StartGame).UI.getAttribute('StartGameButton', 'active') == 'false'
+  GState.Variant = getObjectFromGUID(GuidList.Buttons.VariantToggle).UI.getAttribute('VariantToggleButton', 'color') ==
+      'Green'
 end
 
 function State.updateValue(key, value)

@@ -1,5 +1,6 @@
 require('vscode/console')
 
+local Constants = require('src.util.constants')
 local Functions = require('src.util.functions')
 local DrawDeck = require('src.models.drawDeck')
 local StartGameButton = require('src.components.startGameButton')
@@ -24,10 +25,10 @@ function onLoad(save_state)
 	end
 
 	-- spawnObject({
-	-- 	type = 'Checker_red',
-	-- 	position = { 0, 10, 50 },
-	-- 	scale = { 1, 1, 1 },
-	-- 	rotation = { 0, 0, 0 }
+	-- 	type = 'Checker_black',
+	-- 	position = State.getObjectList().Buttons.StartGame.getPosition() + Vector(0, 0.5, -10),
+	-- 	scale = State.getObjectList().Buttons.StartGame.getScale(),
+	-- 	rotation = State.getObjectList().Buttons.StartGame.getRotation()
 	-- })
 end
 

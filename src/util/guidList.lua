@@ -63,8 +63,10 @@ local GuidList = {
 	ScriptDrawDeck = '105aa0',
 	ScriptDiscardDeck = '264205',
 	State = 'eef68e',
+	Table = 'd7b6e1',
 	Buttons = {
 		StartGame = '67f917',
+		VariantToggle = '7201e3'
 	}
 }
 
