@@ -1,3 +1,0 @@
-local DiscardDeck = {}
-
-return DiscardDeck

@@ -1,73 +1,44 @@
 local GuidList = {
-	Decks = {
-		Stanard = {
-			Red = 'fc4f11',
-			Garden = '11fc02',
-			Blue = 'f3a88f',
-			Chili = '1e490c',
-			Stink = 'a7bf33',
-			Black = '0bd6af',
-			Soy = '3e8500',
-			Green = 'f2d49c',
-		},
-		Variant = {
-			Cocoa = 'd228c8',
-			Wax = 'ea02cd',
-			Coffee = '8e8d4e',
-		}
-	},
-	Players = {
-		White = {
-			Hand = 'affd30',
-			ScriptLeft = 'c7c272',
-			ScriptMiddle = '5bf04a',
-			ScriptRight = '34ec4e',
-		},
-		Red = {
-			Hand = 'd3ce1f',
-			ScriptLeft = '789551',
-			ScriptMiddle = '6eab5b',
-			ScriptRight = '34e460',
-		},
-		Orange = {
-			Hand = 'a26a01',
-			ScriptLeft = '3e4467',
-			ScriptMiddle = '8594ed',
-			ScriptRight = 'eee6ba',
-		},
-		Yellow = {
-			Hand = '455778',
-			ScriptLeft = 'b8b1fb',
-			ScriptMiddle = '820707',
-			ScriptRight = 'd82e1b',
-		},
-		Green = {
-			Hand = '267ce0',
-			ScriptLeft = '326808',
-			ScriptMiddle = '74bc5f',
-			ScriptRight = '540406',
-		},
-		Blue = {
-			Hand = 'c4e41f',
-			ScriptLeft = '2c18c5',
-			ScriptMiddle = '6e7b9f',
-			ScriptRight = '415e10',
-		},
-		Purple = {
-			Hand = '150902',
-			ScriptLeft = 'edfc21',
-			ScriptMiddle = 'e39338',
-			ScriptRight = 'e89dde',
-		},
-	},
-	ScriptDrawDeck = '105aa0',
-	ScriptDiscardDeck = '264205',
-	State = 'eef68e',
-	Table = 'd7b6e1',
-	Buttons = {
-		StartGame = '67f917',
-		VariantToggle = '7201e3'
-	}
+  BeanDecks = {
+    Chili = '1e490c',
+    Green = 'f2d49c',
+    Black = '0bd6af',
+    Stink = 'a7bf33',
+    Soy = '3e8500',
+    Red = 'fc4f11',
+    Garden = '11fc02',
+    Blue = 'f3a88f',
+    Coffee = '8e8d4e',
+    Cocoa = 'd228c8',
+    Wax = 'ea02cd'
+  },
+  Players = {
+    White = {
+      Hand = 'affd30'
+    },
+    Red = {
+      Hand = 'd3ce1f'
+    },
+    Orange = {
+      Hand = 'a26a01'
+    },
+    Yellow = {
+      Hand = '455778'
+    },
+    Green = {
+      Hand = '267ce0'
+    },
+    Blue = {
+      Hand = 'c4e41f'
+    },
+    Purple = {
+      Hand = '150902'
+    }
+  },
+  Table = 'd7b6e1',
+  Buttons = {
+
+  }
 }
 
 return GuidList
