@@ -1,3 +1,4 @@
+local GuidList = require "src.util.guidList"
 local Functions = {}
 
 function Functions.logFiller()
@@ -30,15 +31,14 @@ function Functions.length(table)
 end
 
 ---Find the player color based on a provided GUID
----@param ObjectList table
 ---@param ObjectGuid string
 ---@return string
-function Functions.findColorFromObject(ObjectList, ObjectGuid)
+function Functions.findColorFromObject(ObjectGuid)
 	local FoundColor = ""
-	for Color, Player in pairs(ObjectList.Players) do
+	for Color, Player in pairs(GuidList.Players) do
 		if FoundColor == "" then
 			for _, Value in pairs(Player) do
-				if Value.getGUID() == ObjectGuid then
+				if Value == ObjectGuid then
 					FoundColor = Color
 				end
 			end

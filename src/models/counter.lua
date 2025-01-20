@@ -1,7 +1,9 @@
 local Counter = {}
 
 local Constants = require('src.util.constants')
-local State = require('src.models.state')
+local State = {
+  CounterValue = 0
+}
 
 function Counter.createCounter(Color, ScriptingZone)
   local PositionVector
@@ -25,19 +27,17 @@ function Counter.createCounter(Color, ScriptingZone)
   Checker.setLock(true)
   Checker.interactable = false
 
-  State.updateCounterValue(Color, ScriptingZone.getGUID(), Checker.getGUID())
-
-  Counter.setCheckerValue(Color, Checker, 0)
+  Counter.setCheckerValue(Checker, 0)
 end
 
-function Counter.setCheckerValue(Color, Checker, Value)
-  State.updateCounterValue(Color, Checker.getGUID(), Value)
-  refreshXml(Color, Checker)
+function Counter.setCheckerValue(Checker, Value)
+  State.CounterValue = Value
+  refreshXml(Checker)
 end
 
-function refreshXml(Color, Checker)
+function refreshXml(Checker)
   Checker.UI.setXml("<Text position='0, -10, 0' fontSize='400' color='White'>" ..
-    State.getState().Counters[Color][Checker.getGUID()] .. "</Text>")
+    State.CounterValue .. "</Text>")
 end
 
 return Counter

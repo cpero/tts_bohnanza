@@ -2,7 +2,8 @@ local DrawDeck = {}
 
 local Constants = require('src.util.constants')
 local Functions = require('src.util.functions')
-local State = require('src.models.state')
+
+local State = {}
 
 function DrawDeck.init()
   for _, Object in pairs(State.getObjectList().Decks.Standard) do
@@ -15,7 +16,7 @@ function DrawDeck.init()
 end
 
 function DrawDeck.StartGame()
-  local PlayerCount = Functions.length(State.SeatedPlayers)
+  local PlayerCount = Functions.length(getSeatedPlayers())
 end
 
 return DrawDeck

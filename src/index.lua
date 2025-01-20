@@ -3,8 +3,9 @@ require('vscode/console')
 local Constants = require('src.util.constants')
 local Functions = require('src.util.functions')
 local DrawDeck = require('src.models.drawDeck')
-local StartGameButton = require('src.components.startGameButton')
-local State = require('src.models.state')
+local GuidList = require('src.util.guidList')
+
+local State = {}
 
 function onLoad(save_state)
 	Functions.logFiller()
@@ -16,25 +17,19 @@ function onLoad(save_state)
 		State = JSON.decode(save_state)
 	end
 
-	State.loadObjectList()
-
-	if not State.Init then
-		DrawDeck.init()
-		StartGameButton.init()
-		State.updateValue('Init', true)
-	end
-
-	-- spawnObject({
-	-- 	type = 'Checker_black',
-	-- 	position = State.getObjectList().Buttons.StartGame.getPosition() + Vector(0, 0.5, -10),
-	-- 	scale = State.getObjectList().Buttons.StartGame.getScale(),
-	-- 	rotation = State.getObjectList().Buttons.StartGame.getRotation()
-	-- })
+	initScriptNames()
 end
 
-function onSave()
-	log(State.getState())
+function initScriptNames()
+	local StateChecker = getObjectFromGUID(GuidList.State)
+	StateChecker.destruct()
+	for _, Color in pairs(Constants.AvailableColors) do
+		local ScriptLeft = getObjectFromGUID(GuidList.Players[Color].ScriptLeft)
+		local ScriptMiddle = getObjectFromGUID(GuidList.Players[Color].ScriptMiddle)
+		local ScriptRight = getObjectFromGUID(GuidList.Players[Color].ScriptRight)
 
-	-- return JSON.encode(State)
-	return ''
+		ScriptLeft.setName(Color .. ' Field Left')
+		ScriptMiddle.setName(Color .. ' Field Middle')
+		ScriptRight.setName(Color .. ' Field Right')
+	end
 end
