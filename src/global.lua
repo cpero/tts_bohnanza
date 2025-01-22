@@ -22,72 +22,35 @@ function onLoad(script_state)
 	else
 		log('No saved game found')
 		initializeTable()
+		-- removeLayoutZones()
+		-- createScriptingZoneForHands()
 	end
 end
 
 function initializeTable()
 	log('Initializing table')
 	initializeBeanDecks()
-	initializePlayerLayouts()
 end
 
-function initializePlayerLayouts()
-	Hands.enable = false
-	Hands.hiding = 3
+function removeLayoutZones()
+	log('Removing layout zones')
+	for _, Player in pairs(GuidList.Players) do
+		local Zone = getObjectFromGUID(Player.LayoutZone)
+		Zone.destruct()
+	end
+end
 
-	for _, PlayerColor in pairs(Constants.AvailableColors) do
-		local Player = getObjectFromGUID(GuidList.Players[PlayerColor].Hand)
-
-		local PositionVector = nil
-		local ScaleVector = nil
-		local RotationVector = nil
-		if PlayerColor == 'White' or PlayerColor == 'Red' or PlayerColor == 'Orange' then
-			PositionVector = Vector(0, 0, 15)
-			RotationVector = Vector(0, 0, 0)
-			ScaleVector = Vector(20, 1.5, 1.5)
-		elseif PlayerColor == 'Blue' or PlayerColor == 'Yellow' then
-			PositionVector = Vector(-15, 0, 00)
-			RotationVector = Vector(0, 0, 0)
-			ScaleVector = Vector(20, 1.5, 1.5)
-		elseif PlayerColor == 'Purple' or PlayerColor == 'Green' then
-			PositionVector = Vector(15, 0, 0)
-			RotationVector = Vector(0, 0, 0)
-			ScaleVector = Vector(20, 1.5, 1.5)
-		end
-
-		local LayoutZone = spawnObject({
-			type = 'LayoutZone',
-			position = Player.getPosition() + PositionVector,
-			rotation = Player.getRotation() + RotationVector,
-			scale = Player.getScale() + ScaleVector,
+function createScriptingZoneForHands()
+	log('Creating scripting zones for hands')
+	for Color, Player in pairs(GuidList.Players) do
+		local Zone = getObjectFromGUID(Player.HiddenZone)
+		local scriptingZone = spawnObject({
+			type = 'ScriptingTrigger',
+			position = Zone.getPosition(),
+			rotation = Zone.getRotation(),
+			scale = Zone.getScale(),
 		})
-
-		local HiddenZone = spawnObject({
-			type = 'FogOfWarTrigger',
-			position = Player.getPosition() + PositionVector,
-			rotation = Player.getRotation() + RotationVector,
-			scale = Player.getScale() + ScaleVector,
-		})
-
-		Wait.frames(function()
-			LayoutZone.LayoutZone.setOptions({
-				allow_swapping = false,
-				alternate_direction = false,
-				combine_into_decks = false,
-				new_object_facing = 1,
-				max_objects_per_group = 200,
-				max_objects_per_new_group = 0,
-				horizontal_group_padding = 0,
-				horizontal_spread = 2,
-				meld_sort = 0,
-				meld_direction = 0,
-				meld_sort_existing = true,
-				randomize = false,
-				split_added_decks = true,
-				sticky_cards = true,
-				direction = 1
-			})
-		end, 5)
+		scriptingZone.setName(Color .. 'HandScriptingZone')
 	end
 end
 
@@ -98,7 +61,7 @@ function initializeBeanDecks()
 	for _, Guid in pairs(GuidList.BeanDecks) do
 		local Deck = getObjectFromGUID(Guid)
 		Deck.setPosition(Table.getPosition() + Vector((PosCounter * 6) - 28, 2, 50))
-		Deck.setScale(Vector(2.5, 2.5, 2.5))
+		Deck.setScale(Vector(1.5, 1.5, 1.5))
 		PosCounter = PosCounter + 1
 	end
 end
