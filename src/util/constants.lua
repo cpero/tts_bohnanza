@@ -1,5 +1,7 @@
 local Constants = {}
 
+Constants.DEBUG = true
+
 Constants.AvailableColors =
 { 'White', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple' }
 

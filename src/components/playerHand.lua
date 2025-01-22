@@ -1,19 +1,23 @@
 local Array = require('Bohnanza.src.util.array')
+local Constants = require('Bohnanza.src.util.constants')
 
 local State = {
   CardList = {},
   Arranging = false
 }
 
-function onLoad()
-  log('Player hand loaded')
+function onLoad(script_state)
+  if script_state ~= '' then
+    State = JSON.decode(script_state)
+  end
 end
 
 function onSave()
-  log(State)
-  return ''
-
-  -- return JSON.encode(state)
+  if Constants.DEBUG then
+    return ''
+  else
+    return JSON.encode(State)
+  end
 end
 
 function onObjectEnterZone(Zone, Object)
@@ -26,7 +30,6 @@ function onObjectEnterZone(Zone, Object)
       pushCard(Object)
     end
   end
-  arrangeCards()
 end
 
 function onObjectLeaveZone(Zone, Object)

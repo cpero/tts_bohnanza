@@ -1,17 +1,18 @@
 require('vscode/console')
 
-local GuidList = require('src.util.guidList')
-local Constants = require('src.util.constants')
+local GuidList = require('Bohnanza.src.util.guidList')
+local Constants = require('Bohnanza.src.util.constants')
 
 local State = {
 	Started = false,
 }
 
 function onSave()
-	-- return JSON.encode(State)
-
-	-- log(JSON.encode(State))
-	return '';
+	if Constants.DEBUG then
+		return ''
+	else
+		return JSON.encode(State)
+	end
 end
 
 function onLoad(script_state)
@@ -22,36 +23,12 @@ function onLoad(script_state)
 	else
 		log('No saved game found')
 		initializeTable()
-		-- removeLayoutZones()
-		-- createScriptingZoneForHands()
 	end
 end
 
 function initializeTable()
 	log('Initializing table')
 	initializeBeanDecks()
-end
-
-function removeLayoutZones()
-	log('Removing layout zones')
-	for _, Player in pairs(GuidList.Players) do
-		local Zone = getObjectFromGUID(Player.LayoutZone)
-		Zone.destruct()
-	end
-end
-
-function createScriptingZoneForHands()
-	log('Creating scripting zones for hands')
-	for Color, Player in pairs(GuidList.Players) do
-		local Zone = getObjectFromGUID(Player.HiddenZone)
-		local scriptingZone = spawnObject({
-			type = 'ScriptingTrigger',
-			position = Zone.getPosition(),
-			rotation = Zone.getRotation(),
-			scale = Zone.getScale(),
-		})
-		scriptingZone.setName(Color .. 'HandScriptingZone')
-	end
 end
 
 function initializeBeanDecks()
