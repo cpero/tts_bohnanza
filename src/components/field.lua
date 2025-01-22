@@ -49,7 +49,7 @@ function createField(Color)
       click_function = 'onClickUnlock',
       function_owner = self,
       label = 'Unlock Field',
-      width = 700,
+      width = 600,
       height = 100,
       position = { 0, 0, 0 },
     })
@@ -71,19 +71,20 @@ end
 ---@param Color string
 ---@return string
 function unlockedPanelXml(Color)
-  return "<Panel position='0, 15, 0' height='120' width='100' color='" ..
+  return "<Panel position='0, 15, 0' height='130' width='110' color='" ..
       Constants.UnlockedFieldColors[Color] .. "'></Panel>"
 end
 
 ---Creates the XML for a locked field panel.
 ---@return string
 function lockedPanelXml()
-  return "<Panel height='120' width='100' color='" ..
+  return "<Panel height='130' width='110' color='" ..
       LockeFieldColor .. "' position='0, 15, 0'></Panel>"
 end
 
 function onClickUnlock(_, ClickedColor)
   if State.Color == ClickedColor then
+    ---@diagnostic disable-next-line: param-type-mismatch
     broadcastToAll(State.Color .. " has unlocked their third field!", State.Color)
 
     self.clearButtons()
