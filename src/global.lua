@@ -29,6 +29,7 @@ end
 function initializeTable()
 	log('Initializing table')
 	initializeBeanDecks()
+	hideComponentsBeforeGameStart()
 end
 
 function initializeBeanDecks()
@@ -41,4 +42,34 @@ function initializeBeanDecks()
 		Deck.setScale(Vector(1.5, 1.5, 1.5))
 		PosCounter = PosCounter + 1
 	end
+end
+
+function hideComponentsBeforeGameStart()
+	log('Hiding components')
+	for _, Zone in pairs(GuidList.Players) do
+		for _, Guid in pairs(Zone) do
+			local Component = getObjectFromGUID(Guid)
+			Component.locked = true
+			Component.setPosition(Component.getPosition() + Vector(0, -100, 0))
+		end
+	end
+end
+
+function startGame()
+	log('Starting game')
+	for _, Color in ipairs(getSeatedPlayers()) do
+		local Zone = GuidList.Players[Color]
+		for _, Guid in pairs(Zone) do
+			local Component = getObjectFromGUID(Guid)
+			Component.setPosition(Component.getPosition() + Vector(0, 100, 0))
+		end
+	end
+
+	for _, Guid in pairs(GuidList.Buttons) do
+		local Button = getObjectFromGUID(Guid)
+		Button.setPosition(Button.getPosition() + Vector(0, -100, 0))
+	end
+
+	local ToggleVariantButton = getObjectFromGUID(GuidList.Buttons.ToggleVariant)
+	log(ToggleVariantButton.getTable('State'))
 end

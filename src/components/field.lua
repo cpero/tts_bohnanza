@@ -29,7 +29,7 @@ function onLoad(script_state)
     State.Unlocked = true
   end
 
-  -- createField(PlayerColor)
+  createField(PlayerColor)
 end
 
 function onSave()
