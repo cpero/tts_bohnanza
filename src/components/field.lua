@@ -1,9 +1,10 @@
-local Functions = require('Bohnanza.src.util.functions')
-local Constants = require('Bohnanza.src.util.constants')
+local Functions       = require('Bohnanza.src.util.functions')
+local Constants       = require('Bohnanza.src.util.constants')
+local GuidList        = require('src.util.guidList')
 
 local LockeFieldColor = "#1F1F1F"
 
-local State = {
+local State           = {
   Unlocked = false,
   Role = '',
   Color = ''
@@ -12,8 +13,21 @@ local State = {
 function onLoad(script_state)
   if script_state ~= '' then
     State = JSON.decode(script_state)
+    createField()
+  else
+    initializeField()
   end
+end
 
+function onSave()
+  if Constants.DEBUG then
+    return ''
+  else
+    return JSON.encode(State)
+  end
+end
+
+function initializeField()
   local PlayerColor = Functions.findPlayerColorFromGuid(self.guid)
 
   State.Role = Functions.findRoleFromGuid(self.guid)
@@ -29,20 +43,12 @@ function onLoad(script_state)
     State.Unlocked = true
   end
 
-  createField(PlayerColor)
+  createField()
 end
 
-function onSave()
-  if Constants.DEBUG then
-    return ''
-  else
-    return JSON.encode(State)
-  end
-end
-
-function createField(Color)
+function createField()
   if State.Unlocked then
-    createUnlockedField(Color)
+    createUnlockedField()
   else
     self.UI.setXml(lockedPanelXml())
     self.createButton({
@@ -56,8 +62,8 @@ function createField(Color)
   end
 end
 
-function createUnlockedField(Color)
-  self.UI.setXml(unlockedPanelXml(Color))
+function createUnlockedField()
+  self.UI.setXml(unlockedPanelXml())
   self.setSnapPoints({
     {
       position = { 0, 0, 0 },
@@ -65,14 +71,14 @@ function createUnlockedField(Color)
       rotation_snap = true
     },
   })
+  updateZone()
 end
 
 ---Creates the XML for an unlocked field panel.
----@param Color string
 ---@return string
-function unlockedPanelXml(Color)
+function unlockedPanelXml()
   return "<Panel position='0, 15, 0' height='130' width='110' color='" ..
-      Constants.UnlockedFieldColors[Color] .. "'></Panel>"
+      Constants.UnlockedFieldColors[State.Color] .. "'></Panel>"
 end
 
 ---Creates the XML for a locked field panel.
@@ -88,6 +94,40 @@ function onClickUnlock(_, ClickedColor)
     broadcastToAll(State.Color .. " has unlocked their third field!", State.Color)
 
     self.clearButtons()
-    createUnlockedField(State.Color)
+    createUnlockedField()
+    State.Unlocked = true
   end
+end
+
+function onObjectEnterZone(Zone, Object)
+  if Zone.getGUID() == self.guid and (Object.type == 'Card' or Object.type == 'Deck') then
+    updateZone()
+  end
+end
+
+function onObjectLeaveZone(Zone, Object)
+  if Zone.getGUID() == self.guid and (Object.type == 'Card' or Object.type == 'Deck') then
+    updateZone()
+  end
+end
+
+function updateZone()
+  if State.Unlocked then
+    local FieldCounter = getObjectFromGUID(GuidList.Players[State.Color]['FieldCounter' .. State.Role])
+    FieldCounter.UI.setXml("<Text color='white' text='" ..
+      getNumberOfCardsInZone() .. "' fontSize='100' position='0, -70, 0'/>")
+  end
+end
+
+function getNumberOfCardsInZone()
+  local Counter = 0
+  for _, Object in ipairs(self.getObjects()) do
+    if Object.type == 'Card' then
+      Counter = Counter + 1
+    elseif Object.type == 'Deck' then
+      Counter = Counter + #Object.getObjects()
+    end
+  end
+
+  return Counter
 end

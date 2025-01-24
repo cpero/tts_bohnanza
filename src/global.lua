@@ -50,9 +50,13 @@ function startGame()
 	log('Starting game')
 	for _, Color in ipairs(getSeatedPlayers()) do
 		local Zone = GuidList.Players[Color]
-		for _, Guid in pairs(Zone) do
+		for Name, Guid in pairs(Zone) do
 			local Component = getObjectFromGUID(Guid)
 			Component.setPosition(Component.getPosition() + Vector(0, 10000, 0))
+
+			if string.find(Name, 'Field') then
+				Component.call('initializeField', nil)
+			end
 		end
 	end
 
