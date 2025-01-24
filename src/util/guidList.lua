@@ -72,7 +72,8 @@ local GuidList = {
   },
   Table = 'd7b6e1',
   Buttons = {
-
+    StartGame = 'a9faee',
+    ToggleVariant = '1e7df5'
   }
 }
 
