@@ -1,16 +1,60 @@
 local GuidList = {
   BeanDecks = {
-    Chili = '1e490c',
-    Green = 'f2d49c',
-    Black = '0bd6af',
-    Stink = 'a7bf33',
-    Soy = '3e8500',
-    Red = 'fc4f11',
-    Garden = '11fc02',
-    Blue = 'f3a88f',
-    Coffee = '8e8d4e',
-    Cocoa = 'd228c8',
-    Wax = 'ea02cd'
+    Chili = {
+      Guid = 'd81de4',
+      Num = 18,
+      Scores = { 3, 6, 8, 9 }
+    },
+    Green = {
+      Guid = 'd1c2b3',
+      Num = 14,
+      Scores = { 3, 5, 6, 7 }
+    },
+    Black = {
+      Guid = 'e14f97',
+      Num = 10,
+      Scores = { 2, 4, 5, 6 }
+    },
+    Stink = {
+      Guid = '9bee9e',
+      Num = 16,
+      Scores = { 3, 5, 7, 8 }
+    },
+    Soy = {
+      Guid = '3242c6',
+      Num = 12,
+      Scores = { 2, 4, 6, 7 }
+    },
+    Red = {
+      Guid = '84ee67',
+      Num = 8,
+      Scores = { 2, 3, 5, 6 }
+    },
+    Garden = {
+      Guid = '3255cc',
+      Num = 6,
+      Scores = { 2, 3 }
+    },
+    Blue = {
+      Guid = '331460',
+      Num = 20,
+      Scores = { 4, 6, 8, 10 }
+    },
+    Coffee = {
+      Guid = '1a991c',
+      Num = 24,
+      Scores = { 1, 4, 7, 12 }
+    },
+    Cocoa = {
+      Guid = 'ded46f',
+      Num = 4,
+      Scores = { 2, 3, 4 }
+    },
+    Wax = {
+      Guid = '620b1b',
+      Num = 22,
+      Scores = { 4, 7, 9, 11 }
+    }
   },
   Players = {
     White = {
@@ -92,6 +136,8 @@ local GuidList = {
     }
   },
   Table = 'd7b6e1',
+  DrawDeck = '227881',
+  DiscardDeck = '5668ce',
   Buttons = {
     StartGame = 'a9faee',
     ToggleVariant = '1e7df5'
