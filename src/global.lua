@@ -34,7 +34,6 @@ end
 function initializeTable()
 	log('Initializing table')
 	initializeBeanDecks()
-	resetBoard()
 end
 
 function initializeBeanDecks()
@@ -55,6 +54,11 @@ end
 
 function startGame()
 	log('Starting game')
+
+	Turns.enable = true
+	Turns.order = getSeatedPlayers()
+	Turns.turn_color = getSeatedPlayers()[math.random(1, #getSeatedPlayers())]
+
 	createDecks()
 
 	for _, Color in ipairs(getSeatedPlayers()) do
@@ -111,18 +115,18 @@ function createDecks()
 			rotation_snap = true
 		},
 	})
-	DiscardDeck.createButton({
-		click_function = 'shuffleDeck',
-		function_owner = self,
-		label = 'Shuffle',
-		position = { 0, 0.5, -4 },
-		rotation = { 0, 180, 0 },
-		width = 1700,
-		height = 500,
-		font_size = 150,
-		color = 'White',
-		tooltip = 'Shuffle the discard pile back into the draw deck',
-	})
+	-- DiscardDeck.createButton({
+	-- 	click_function = 'shuffleDeck',
+	-- 	function_owner = self,
+	-- 	label = 'Shuffle',
+	-- 	position = { 0, 0.5, -4 },
+	-- 	rotation = { 0, 180, 0 },
+	-- 	width = 1700,
+	-- 	height = 500,
+	-- 	font_size = 150,
+	-- 	color = 'White',
+	-- 	tooltip = 'Shuffle the discard pile back into the draw deck',
+	-- })
 
 	createDrawDeck()
 end
