@@ -20,26 +20,26 @@ function onSave()
   end
 end
 
-function onObjectEnterZone(Zone, Object)
-  if Zone.guid == self.guid then
-    if Object.type == 'Deck' then
-      for _, Card in pairs(Object.getObjects()) do
-        pushCard(Card)
-      end
-    elseif Object.type == 'Card' then
-      pushCard(Object)
-    end
-  end
-end
+-- function onObjectEnterZone(Zone, Object)
+--   if Zone.guid == self.guid then
+--     if Object.type == 'Deck' then
+--       for _, Card in pairs(Object.getObjects()) do
+--         pushCard(Card)
+--       end
+--     elseif Object.type == 'Card' then
+--       pushCard(Object)
+--     end
+--   end
+-- end
 
-function onObjectLeaveZone(Zone, Object)
-  if Zone.guid == self.guid then
-    if Object.type == 'Card' then
-      local popped = popCard()
-      State.CardList = popped[2]
-    end
-  end
-end
+-- function onObjectLeaveZone(Zone, Object)
+--   if Zone.guid == self.guid then
+--     if Object.type == 'Card' then
+--       local popped = popCard()
+--       State.CardList = popped[2]
+--     end
+--   end
+-- end
 
 function pushCard(Card)
   if not Array.includes(State.CardList, Card.guid) then

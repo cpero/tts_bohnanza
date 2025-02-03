@@ -6,6 +6,7 @@ local Constants = require('Bohnanza.src.util.constants')
 local State = {
 	Started = false,
 	DrawZone = '',
+	DiscardZone = '',
 	CurrentDrawDeck = '',
 }
 
@@ -79,7 +80,6 @@ function startGame()
 	end
 
 	local ToggleVariantButton = getObjectFromGUID(GuidList.Buttons.ToggleVariant)
-	log(ToggleVariantButton.getTable('State'))
 end
 
 function createDecks()
@@ -102,12 +102,12 @@ function createDecks()
 		rotation = DrawDeck.getRotation(),
 		scale    = DrawDeck.getScale() + Vector(5, 5, 5),
 	})
-
 	State.DrawZone = DrawZone.getGUID()
 
 	DiscardDeck.UI.setXml([[<Panel position="0 0 -46" rotation="0 0 0" color="#212131" width="350" height="450">
 		<Text fontSize='30' color='White' >DISCARD</Text>
 	</Panel>]])
+
 	DiscardDeck.setSnapPoints({
 		{
 			position = { 0, 0, 0 },
@@ -115,18 +115,27 @@ function createDecks()
 			rotation_snap = true
 		},
 	})
-	-- DiscardDeck.createButton({
-	-- 	click_function = 'shuffleDeck',
-	-- 	function_owner = self,
-	-- 	label = 'Shuffle',
-	-- 	position = { 0, 0.5, -4 },
-	-- 	rotation = { 0, 180, 0 },
-	-- 	width = 1700,
-	-- 	height = 500,
-	-- 	font_size = 150,
-	-- 	color = 'White',
-	-- 	tooltip = 'Shuffle the discard pile back into the draw deck',
-	-- })
+
+	local DiscardZone = spawnObject({
+		type     = 'ScriptingTrigger',
+		position = DiscardDeck.getPosition() + Vector(0, 2, 0),
+		rotation = DiscardDeck.getRotation(),
+		scale    = DiscardDeck.getScale() + Vector(5, 5, 5),
+	})
+	State.DiscardZone = DiscardZone.getGUID()
+
+	DiscardDeck.createButton({
+		click_function = 'onClickShuffleDeck',
+		function_owner = self,
+		label = 'Shuffle',
+		position = { 0, 0.5, -4 },
+		rotation = { 0, 180, 0 },
+		width = 1700,
+		height = 500,
+		font_size = 200,
+		color = 'White',
+		tooltip = 'Shuffle the discard pile back into the draw deck',
+	})
 
 	createDrawDeck()
 end
@@ -137,6 +146,11 @@ function createDrawDeck()
 	local DrawZone = getObjectFromGUID(State.DrawZone)
 	local IsVariant = getObjectFromGUID(GuidList.Buttons.ToggleVariant).getTable('State').Enabled
 
+	if not IsVariant and #getSeatedPlayers() > 5 then
+		broadcastToAll("Enabling variant mode for 6+ players", 'Red')
+		IsVariant = true
+	end
+
 	for Name, Object in pairs(GuidList.BeanDecks) do
 		if (Name == 'Coffee' or Name == 'Cocoa' or Name == 'Wax') and not IsVariant then
 			log('Skipping ' .. Name)
@@ -144,7 +158,7 @@ function createDrawDeck()
 		else
 			for i = 1, Object.Num do
 				local NewObject = getObjectFromGUID(Object.Guid).clone({
-					position = DrawZone.getPosition() + Vector(0, 2, 0),
+					position = DrawZone.getPosition() + Vector(0, 0.5, 0),
 				})
 				NewObject.locked = false
 				NewObject.interactable = true
@@ -159,6 +173,36 @@ function createDrawDeck()
 				State.CurrentDrawDeck = Object.getGUID()
 				Object.shuffle()
 				Object.flip()
+				break
+			end
+		end
+	end, 10)
+
+	Wait.frames(function()
+		local DrawDeck = getObjectFromGUID(State.CurrentDrawDeck)
+		DrawDeck.locked = true
+		DrawDeck.interactable = false
+	end, 180)
+end
+
+function onClickShuffleDeck()
+	log('Shuffling deck from discard zone')
+
+	local DrawZone = getObjectFromGUID(State.DrawZone)
+	for _, Object in ipairs(getObjectFromGUID(State.DiscardZone).getObjects()) do
+		if Object.type == 'Card' or Object.type == 'Deck' then
+			Object.setPosition(DrawZone.getPosition() + Vector(0, 0.5, 0))
+		end
+	end
+
+	Wait.frames(function()
+		for _, Object in ipairs(DrawZone.getObjects()) do
+			if Object.type == 'Deck' then
+				State.CurrentDrawDeck = Object.getGUID()
+				Object.shuffle()
+				Object.flip()
+				Object.locked = true
+				Object.interactable = false
 				break
 			end
 		end

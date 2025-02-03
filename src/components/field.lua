@@ -1,6 +1,6 @@
 local Functions       = require('Bohnanza.src.util.functions')
 local Constants       = require('Bohnanza.src.util.constants')
-local GuidList        = require('src.util.guidList')
+local GuidList        = require('Bohnanza.src.util.guidList')
 
 local LockeFieldColor = "#1F1F1F"
 
