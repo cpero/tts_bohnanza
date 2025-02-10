@@ -2,7 +2,8 @@ local Constants = require("Bohnanza.src.util.constants")
 local GuidList = require("Bohnanza.src.util.guidList")
 
 local state = {
-  stage = 1
+  started = false,
+  variant = true
 }
 
 local center = getObjectFromGUID(GuidList.Center)
@@ -54,7 +55,7 @@ function initHands()
   greenHand.setScale(Vector(30, 5, 10))
 
   yellowHand.setPosition(center.getPosition() + Vector(76, 3, -10))
-  yellowHand.setRotation(center.getRotation() + Vector(0, 90, 0))
+  yellowHand.setRotation(center.getRotation() + Vector(0, -90, 0))
   yellowHand.setScale(Vector(30, 5, 10))
 
   redHand.setPosition(yellowHand.getPosition() + Vector(0, 0, 45))
@@ -99,8 +100,8 @@ function initBeanDecks()
   for name, deck in pairs(decks) do
     deck.setPosition(center.getPosition() + Vector(xPos, 1, 50))
     deck.setRotation(center.getRotation() + Vector(0, 180, 0))
-    deck.interactable = false
-    deck.locked = true
+    -- deck.interactable = false
+    -- deck.locked = true
     xPos = xPos + 8
   end
 end
@@ -163,5 +164,32 @@ function initPlayerSpace()
     rightField.locked = true
     rightField.setPosition(hand.getPosition() + rightPosVector)
     rightField.setRotation(hand.getRotation())
+  end
+end
+
+function onClickStartGame()
+  log('Starting game...')
+end
+
+function onClickToggleVariant()
+  state.variant = not state.variant
+  log(state.variant)
+  if state.variant then
+    self.UI.setAttribute('toggleVariantBtn', 'text', 'Variant Mode: Enabled')
+    self.UI.setAttribute('toggleVariantBtn', 'color', 'green')
+  else
+    self.UI.setAttribute('toggleVariantBtn', 'text', 'Variant Mode: Disabled')
+    self.UI.setAttribute('toggleVariantBtn', 'color', 'red')
+  end
+end
+
+function onPlayerChangeColor()
+  if #getSeatedPlayers() >= 6 then
+    self.UI.setAttribute('toggleVariantBtn', 'text', 'Variant Mode: Enabled')
+    self.UI.setAttribute('toggleVariantBtn', 'color', 'green')
+    self.UI.setAttribute('toggleVariantBtn', 'interactable', 'false')
+    state.variant = true
+  else
+    self.UI.setAttribute('toggleVariantBtn', 'interactable', 'true')
   end
 end

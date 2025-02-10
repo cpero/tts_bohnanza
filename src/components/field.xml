@@ -1,0 +1,6 @@
+<Panel id='field' height='1400' width='800' position='0 0 -26' active='true'>
+  <Button id='unlockFieldBtn' color='white' width='400' height='150' fontSize='60' active='false'
+    onClick='onClickUnlockField'>
+    Unlock Field
+  </Button>
+</Panel>

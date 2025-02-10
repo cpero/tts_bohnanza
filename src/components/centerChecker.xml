@@ -1,0 +1,12 @@
+<Panel position='0 0 -40'>
+  <Panel id='tableSetup'>
+    <Button height='800' width='2000' fontSize='200'
+      tooltip='Click here once all players are seated.' onClick='onClickStartGame'>Start Game</Button>
+    <ToggleButton id='toggleVariantBtn' height='400' width='2000' fontSize='150' position='0 -800 0'
+      color='green' isOn='true' text='Variant Mode: Enabled' onClick='onClickToggleVariant' />
+    <Text fontSize='100' position='0 -1400 0' color='white'>
+      Adds Coffee, Cocoa, and Wax beans to the deck.
+    </Text>
+    <Text fontSize='100' position='0 -1600 0' color='white'>Required for 6+ players.</Text>
+  </Panel>
+</Panel>

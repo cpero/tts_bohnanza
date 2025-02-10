@@ -1,5 +1,7 @@
 local GuidList = require "Bohnanza.src.util.guidList"
 local Constants = require "Bohnanza.src.util.constants"
+require("vscode/console")
+
 
 local state = {
 	stage = 1,
