@@ -1,5 +1,6 @@
 local Constants = require("Bohnanza.src.util.constants")
 local GuidList = require("Bohnanza.src.util.guidList")
+local Functions = require("Bohnanza.src.util.functions")
 
 local state = {
   started = false,
@@ -19,11 +20,18 @@ local purpleHand = getObjectFromGUID(GuidList.Players.Purple.Hand)
 local rules = getObjectFromGUID(GuidList.Rules)
 
 function setupGame()
+  if state.started then
+    log('Game already started')
+    return
+  end
+
   log('Setting up game...')
   initHands()
   initRules()
   initBeanDecks()
   initPlayerSpace()
+  setNotes()
+  hideScoreBags()
 end
 
 function onLoad(script_state)
@@ -33,6 +41,8 @@ function onLoad(script_state)
 end
 
 function onSave()
+  hideScoreBags()
+
   if Constants.DEBUG then
     return ''
   else
@@ -42,7 +52,7 @@ end
 
 function initHands()
   log('Initializing player hands')
-  orangeHand.setPosition(center.getPosition() + Vector(0, 3, -55))
+  orangeHand.setPosition(center.getPosition() + Vector(0, 3, -65))
   orangeHand.setRotation(center.getRotation())
   orangeHand.setScale(Vector(30, 5, 10))
 
@@ -54,7 +64,7 @@ function initHands()
   greenHand.setRotation(orangeHand.getRotation())
   greenHand.setScale(Vector(30, 5, 10))
 
-  yellowHand.setPosition(center.getPosition() + Vector(76, 3, -10))
+  yellowHand.setPosition(center.getPosition() + Vector(86, 3, -10))
   yellowHand.setRotation(center.getRotation() + Vector(0, -90, 0))
   yellowHand.setScale(Vector(30, 5, 10))
 
@@ -62,7 +72,7 @@ function initHands()
   redHand.setRotation(yellowHand.getRotation())
   redHand.setScale(Vector(30, 5, 10))
 
-  pinkHand.setPosition(center.getPosition() + Vector(-76, 3, -10))
+  pinkHand.setPosition(center.getPosition() + Vector(-86, 3, -10))
   pinkHand.setRotation(center.getRotation() + Vector(0, 90, 0))
   pinkHand.setScale(Vector(30, 5, 10))
 
@@ -100,8 +110,8 @@ function initBeanDecks()
   for name, deck in pairs(decks) do
     deck.setPosition(center.getPosition() + Vector(xPos, 1, 50))
     deck.setRotation(center.getRotation() + Vector(0, 180, 0))
-    -- deck.interactable = false
-    -- deck.locked = true
+    deck.interactable = false
+    deck.locked = true
     xPos = xPos + 8
   end
 end
@@ -110,22 +120,7 @@ function initPlayerSpace()
   log('Initializing player space')
   for color, playerObj in pairs(GuidList.Players) do
     local hand = getObjectFromGUID(playerObj.Hand)
-    local posVector = Vector(0, 0, 0)
     local yValue = -3
-
-    if color == 'White' or color == 'Green' or color == 'Orange' then
-      posVector = Vector(0, yValue, 8)
-    elseif color == 'Purple' or color == 'Pink' then
-      posVector = Vector(8, yValue, 0)
-    else
-      posVector = Vector(-8, yValue, 0)
-    end
-
-    local scoreCounter = getObjectFromGUID(playerObj.Score)
-    scoreCounter.interactable = Constants.DEBUG
-    scoreCounter.locked = true
-    scoreCounter.setPosition(hand.getPosition() + posVector)
-
 
     local leftPosVector = nil
     local middlePosVector = nil
@@ -169,9 +164,31 @@ end
 
 function onClickStartGame()
   log('Starting game...')
+  if state.started then
+    log('Game already started')
+    return
+  end
+
+  self.UI.setAttribute('tableSetup', 'active', 'false')
+  self.UI.setAttribute('gameLayout', 'active', 'true')
+  self.UI.setAttribute('draw', 'color', Constants.DrawDeckColor)
+  self.UI.setAttribute('discard', 'color', Constants.DiscardDeckColor)
+
+  self.setSnapPoints({
+    { position = { -6, 0, 0 }, rotation = { 0, 180, 0 }, rotation_snap = true },
+    { position = { 6, 0, 0 },  rotation = { 0, 180, 0 }, rotation_snap = true }
+  })
+
+  Notes.setNotes('')
+  state.started = true
 end
 
 function onClickToggleVariant()
+  if state.started then
+    log('Game already started')
+    return
+  end
+
   state.variant = not state.variant
   log(state.variant)
   if state.variant then
@@ -184,6 +201,10 @@ function onClickToggleVariant()
 end
 
 function onPlayerChangeColor()
+  if state.started then
+    return
+  end
+
   if #getSeatedPlayers() >= 6 then
     self.UI.setAttribute('toggleVariantBtn', 'text', 'Variant Mode: Enabled')
     self.UI.setAttribute('toggleVariantBtn', 'color', 'green')
@@ -191,5 +212,21 @@ function onPlayerChangeColor()
     state.variant = true
   else
     self.UI.setAttribute('toggleVariantBtn', 'interactable', 'true')
+  end
+end
+
+function setNotes()
+  Notes.setNotes(
+    'Welcome to Bohnanza!\n\nThis is setup for basic scriptipng and supports 2-7 players.' ..
+    'Every player has 3 fields and a score bag that is only visible to them.\n\n' ..
+    'Once all players are seated, use the button to start the game.\n\n' ..
+    'Have fun!')
+end
+
+function hideScoreBags()
+  for _, color in ipairs(getSeatedPlayers()) do
+    local playerObj = GuidList.Players[color]
+    local scoreBag = getObjectFromGUID(playerObj.Score)
+    scoreBag.setInvisibleTo(Functions.allButCurrentPlayer(color))
   end
 end

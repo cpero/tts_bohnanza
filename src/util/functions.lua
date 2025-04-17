@@ -1,6 +1,7 @@
 local Functions = {}
 
-local GuidList = require('src.util.guidList')
+local GuidList = require('Bohnanza.src.util.guidList')
+local Constants = require('Bohnanza.src.util.constants')
 
 function Functions.findPlayerColorFromGuid(Guid)
   local color = nil
@@ -28,6 +29,17 @@ function Functions.findRoleFromGuid(Guid)
     end
   end
   return position
+end
+
+function Functions.allButCurrentPlayer(playerColor)
+  local players = {}
+
+  for _, color in ipairs(Constants.AvailableColors) do
+    if color ~= playerColor then
+      table.insert(players, color)
+    end
+  end
+  return players
 end
 
 return Functions

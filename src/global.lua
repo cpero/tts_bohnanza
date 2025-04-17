@@ -17,6 +17,8 @@ function onLoad(script_state)
 
 	if state.stage == 1 then
 		center.call('setupGame')
+		state.stage = 2
+		log('Game setup called')
 	end
 end
 

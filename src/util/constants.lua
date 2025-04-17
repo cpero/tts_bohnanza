@@ -16,5 +16,7 @@ Constants.UnlockedFieldColors = {
 }
 
 Constants.LockedFieldColor = '#1F1F1F'
+Constants.DrawDeckColor = '#1F1F1F'
+Constants.DiscardDeckColor = '#1F1F1F'
 
 return Constants

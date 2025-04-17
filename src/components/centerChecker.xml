@@ -1,6 +1,6 @@
-<Panel position='0 0 -40'>
-  <Panel id='tableSetup'>
-    <Button height='800' width='2000' fontSize='200'
+<Panel position='0 0 -26'>
+  <Panel id='tableSetup' active='true'>
+    <Button height='800' width='2000' fontSize='200' position='0 0 0'
       tooltip='Click here once all players are seated.' onClick='onClickStartGame'>Start Game</Button>
     <ToggleButton id='toggleVariantBtn' height='400' width='2000' fontSize='150' position='0 -800 0'
       color='green' isOn='true' text='Variant Mode: Enabled' onClick='onClickToggleVariant' />
@@ -8,5 +8,13 @@
       Adds Coffee, Cocoa, and Wax beans to the deck.
     </Text>
     <Text fontSize='100' position='0 -1600 0' color='white'>Required for 6+ players.</Text>
+  </Panel>
+  <Panel id='gameLayout' active='false'>
+    <Panel id='draw' height='1200' width='800' position='-600 0 0'>
+      <Text fontSize='100' color='white'>Draw Pile</Text>
+    </Panel>
+    <Panel id='discard' height='1200' width='800' position='600 0 0'>
+      <Text fontSize='100' color='white'>Discard Pile</Text>
+    </Panel>
   </Panel>
 </Panel>
