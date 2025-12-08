@@ -51,9 +51,9 @@ PositionConfig.Fields = {
     },
     -- Right side players (Yellow, Red)
     right = {
-      left = Vector(-15, -3, 10),
+      left = Vector(-15, -3, -10),
       middle = Vector(-15, -3, 0),
-      right = Vector(-15, -3, -10)
+      right = Vector(-15, -3, 10)
     }
   }
 }

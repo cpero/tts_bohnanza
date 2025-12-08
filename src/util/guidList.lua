@@ -27,16 +27,16 @@ local GuidList = {
     Yellow = {
       Hand = '61c4ba',
       Score = '19e679',
-      LeftField = '0c4ad0',
+      LeftField = '530500',
       MiddleField = '5d2f0d',
-      RightField = '530500',
+      RightField = '0c4ad0',
     },
     Red = {
       Hand = '6ba0d4',
       Score = '72aed3',
-      LeftField = 'c37b8f',
+      LeftField = 'fba0c1',
       MiddleField = '7e632d',
-      RightField = 'fba0c1',
+      RightField = 'c37b8f',
     },
     Pink = {
       Hand = '3e82f9',

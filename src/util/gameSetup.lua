@@ -6,6 +6,9 @@ local PositionConfig = require('src.util.positionConfig')
 
 local GameSetup = {}
 
+-- Store original field positions so we can restore them later
+local fieldPositions = {}
+
 --- Initializes all player hand zones
 --- @param center table The center object to position hands relative to
 function GameSetup.initHands(center)
@@ -80,7 +83,19 @@ local function initField(field, handPos, handRot, fieldOffset, debug)
   
   field.interactable = debug
   field.locked = true
-  field.setPosition(handPos + fieldOffset)
+  
+  -- Calculate the correct position
+  local correctPos = handPos + fieldOffset
+  
+  -- Store the correct position for later restoration
+  local fieldGuid = field.getGUID()
+  fieldPositions[fieldGuid] = {
+    position = correctPos,
+    rotation = handRot
+  }
+  
+  -- Move field far away to hide it (way below the table)
+  field.setPosition(correctPos + Vector(0, -1000, 0))
   field.setRotation(handRot)
 end
 
@@ -135,6 +150,103 @@ function GameSetup.hideScoreBags(Functions)
   end
 end
 
+--- Shows fields for seated players (hides fields for non-seated players)
+function GameSetup.showFieldsForSeatedPlayers()
+  log('Showing fields for seated players')
+  
+  local seatedPlayers = getSeatedPlayers()
+  local seatedColorSet = {}
+  
+  -- Create a set of seated player colors for quick lookup
+  for _, color in ipairs(seatedPlayers) do
+    seatedColorSet[color] = true
+    log('  Seated player: ' .. tostring(color))
+  end
+  
+  -- For each player color, show or hide their fields
+  for color, playerObj in pairs(GuidList.Players) do
+    local isSeated = seatedColorSet[color] == true
+    
+    -- Get all three fields for this player
+    local leftField = getObjectFromGUID(playerObj.LeftField)
+    local middleField = getObjectFromGUID(playerObj.MiddleField)
+    local rightField = getObjectFromGUID(playerObj.RightField)
+    
+    local fields = {
+      {field = leftField, name = 'Left'},
+      {field = middleField, name = 'Middle'},
+      {field = rightField, name = 'Right'}
+    }
+    
+    for _, fieldData in ipairs(fields) do
+      local field = fieldData.field
+      if field then
+        local fieldGuid = field.getGUID()
+        local storedPos = fieldPositions[fieldGuid]
+        
+        if isSeated then
+          -- Move field back to its correct position
+          if storedPos then
+            field.setPosition(storedPos.position)
+            field.setRotation(storedPos.rotation)
+            log('  Moved ' .. color .. ' ' .. fieldData.name .. ' field to correct position')
+          else
+            log('WARNING: No stored position for ' .. color .. ' ' .. fieldData.name .. ' field')
+          end
+        else
+          -- Keep field far away (hidden)
+          if storedPos then
+            field.setPosition(storedPos.position + Vector(0, -1000, 0))
+            log('  Kept ' .. color .. ' ' .. fieldData.name .. ' field hidden')
+          end
+        end
+      else
+        log('WARNING: ' .. fieldData.name .. ' field not found for ' .. color)
+      end
+    end
+    
+    if isSeated then
+      log('  Showing fields for ' .. color)
+    else
+      log('  Hiding fields for ' .. color)
+    end
+  end
+end
+
+--- Explicitly hides all fields by moving them far away (called after setup to ensure they're hidden)
+function GameSetup.hideAllFields()
+  log('Explicitly hiding all fields by moving them away')
+  
+  for color, playerObj in pairs(GuidList.Players) do
+    local leftField = getObjectFromGUID(playerObj.LeftField)
+    local middleField = getObjectFromGUID(playerObj.MiddleField)
+    local rightField = getObjectFromGUID(playerObj.RightField)
+    
+    local fields = {
+      {field = leftField, name = 'Left'},
+      {field = middleField, name = 'Middle'},
+      {field = rightField, name = 'Right'}
+    }
+    
+    for _, fieldData in ipairs(fields) do
+      local field = fieldData.field
+      if field then
+        local fieldGuid = field.getGUID()
+        local storedPos = fieldPositions[fieldGuid]
+        if storedPos then
+          -- Move field far away
+          field.setPosition(storedPos.position + Vector(0, -1000, 0))
+          log('  Hid ' .. color .. ' ' .. fieldData.name .. ' field')
+        end
+      else
+        log('WARNING: ' .. color .. ' ' .. fieldData.name .. ' field not found')
+      end
+    end
+  end
+  
+  log('Finished hiding all fields')
+end
+
 --- Runs all setup procedures
 --- @param center table The center object
 --- @param Functions table The Functions utility module
@@ -146,6 +258,12 @@ function GameSetup.setupAll(center, Functions)
   GameSetup.initPlayerSpace()
   GameSetup.setNotes()
   GameSetup.hideScoreBags(Functions)
+  
+  -- Fields are already moved away during initField, but ensure they stay hidden
+  -- Wait a moment to ensure all objects are fully initialized
+  Wait.time(function()
+    GameSetup.hideAllFields()
+  end, 0.5)
 end
 
 return GameSetup

@@ -1,0 +1,481 @@
+---
+alwaysApply: true
+---
+
+# Bohnanza TTS Mod Development Rules
+
+This document contains the development rules and guidelines for the Bohnanza Tabletop Simulator mod. These rules MUST be followed by all contributors ("clankers") working on this project.
+
+## Table of Contents
+
+1. [Context7 Usage](#context7-usage)
+2. [TTS Editor Extension Optimization](#tts-editor-extension-optimization)
+3. [Lua Coding Standards](#lua-coding-standards)
+4. [Project Structure](#project-structure)
+5. [Bohnanza Game Rules](#bohnanza-game-rules)
+6. [Development Workflow](#development-workflow)
+7. [Code Organization](#code-organization)
+8. [Testing and Debugging](#testing-and-debugging)
+
+---
+
+## Context7 Usage
+
+**CRITICAL: Always use Context7 for documentation and code references.**
+
+- **Mandatory Rule**: Before writing code or making changes, ALWAYS consult Context7 for:
+  - Lua/Luau language documentation and best practices
+  - Tabletop Simulator API references
+  - TTS Editor extension documentation
+  - Any library or framework documentation needed
+
+- **How to Use Context7**:
+  - Use the `mcp_context7_resolve-library-id` tool to find relevant libraries
+  - Use the `mcp_context7_get-library-docs` tool to retrieve documentation
+  - When asking for code assistance, explicitly request "use context7" in prompts
+  - Prefer Context7 documentation over web searches for technical references
+
+- **Why Context7**: Context7 provides up-to-date, version-specific documentation directly in the development environment, ensuring code accuracy and reducing the risk of outdated or incorrect implementations.
+
+---
+
+## TTS Editor Extension Optimization
+
+**This project is optimized for the TTS Editor extension. All development must align with its workflow.**
+
+### Extension Setup
+
+- **Required Extension**: `sebaestschjin.tts-editor` (TTS Editor)
+- **Documentation**: https://sebaestschjin.github.io/tts-tools/editor/latest/
+- **Workspace File**: Always use `tts_bohnanza.code-workspace` to ensure proper extension configuration
+
+### Key Commands (Use These, Not Manual Script Editing)
+
+- **`TTS Editor: Get Objects`** - Download all scripts from TTS to `.tts/objects/`
+- **`TTS Editor: Save and Play`** - Bundle scripts and upload to TTS, then reload game
+- **`TTS Editor: Update Object`** - Update single object without full game reload
+- **`TTS Editor: Execute`** - Run code snippets directly in TTS for testing
+
+### Bundling Configuration
+
+- **Source Directory**: `src/` - All source code must be in this directory
+- **Bundler Config**: `.ttsbundler.json` - Defines entry points and output directory
+- **Entry Point**: `src/global.lua` → `Global.-1.lua` (global script)
+- **Output**: Bundled scripts go to `.tts/bundled/` (auto-generated, do not edit)
+
+### Module System
+
+- Use `require()` statements for modular code organization
+- Module paths use dot notation: `require('src.util.constants')`
+- The bundler automatically resolves and bundles all `require()` dependencies
+- **Never manually edit files in `.tts/` directory** - they are auto-generated
+
+### Workflow Rules
+
+1. **Always edit in `src/` directory**, never directly in TTS
+2. **Use "Get Objects"** when starting work to sync with TTS state
+3. **Use "Save and Play"** to test changes (bundles and reloads automatically)
+4. **Use "Update Object"** for faster iteration on single objects
+5. **Never commit `.tts/` directory** - it's generated content
+
+---
+
+## Lua Coding Standards
+
+### Language Version
+
+- **Lua 5.2** - Tabletop Simulator uses Lua 5.2, not Lua 5.4 or Luau
+- Be aware of Lua 5.2 limitations (no bitwise operators, different string patterns, etc.)
+
+### Code Style
+
+- **Indentation**: Use 2 spaces (consistent with existing codebase)
+- **Naming Conventions**:
+  - `camelCase` for variables and functions
+  - `PascalCase` for modules and classes
+  - `UPPER_CASE` for constants
+- **Comments**: Use `---` for function documentation (LuaDoc style)
+- **Line Length**: Keep lines under 100 characters when possible
+
+### Module Pattern
+
+```lua
+-- Module structure template
+local ModuleName = {}
+
+-- Private functions (local)
+local function privateFunction()
+  -- implementation
+end
+
+-- Public functions
+function ModuleName.publicFunction()
+  -- implementation
+end
+
+return ModuleName
+```
+
+### Error Handling
+
+- Always validate inputs (GUIDs, colors, player data)
+- Use `log()` for debugging messages
+- Use `Functions.broadcastError()`, `Functions.broadcastWarning()`, `Functions.broadcastSuccess()` for user-facing messages
+- Check for `nil` before using objects retrieved by GUID
+
+### State Management
+
+- Use `onLoad(script_state)` and `onSave()` for persistent state
+- State should be JSON-encodable
+- In DEBUG mode (`Constants.DEBUG = true`), return empty string from `onSave()` to reset state
+- Always validate loaded state before using it
+
+### Best Practices
+
+- **Avoid global variables** - use module exports instead
+- **Use local variables** whenever possible
+- **Validate all inputs** - especially GUIDs and player colors
+- **Use descriptive function names** - `findPlayerColorFromGuid()` not `findColor()`
+- **Document functions** with `---` comments including `@param` and `@return`
+- **Keep functions focused** - single responsibility principle
+
+---
+
+## Project Structure
+
+```
+tts_bohnanza/
+├── src/                    # Source code (EDIT HERE)
+│   ├── global.lua         # Main global script entry point
+│   ├── components/        # Game component scripts
+│   │   ├── center.lua     # Center control object
+│   │   ├── center.xml     # Center UI
+│   │   ├── field.lua      # Field component logic
+│   │   ├── field.xml      # Field UI
+│   │   └── ...
+│   └── util/              # Utility modules
+│       ├── constants.lua  # Game constants
+│       ├── functions.lua  # Helper functions
+│       ├── guidList.lua   # GUID references
+│       └── ...
+├── .tts/                  # TTS Editor working directory (AUTO-GENERATED)
+│   ├── bundled/           # Bundled scripts (DO NOT EDIT)
+│   └── objects/           # Raw scripts from TTS (DO NOT EDIT)
+├── .ttsbundler.json       # Bundler configuration
+├── tts_bohnanza.code-workspace  # VSCode workspace config
+└── .cursorrules           # This file
+```
+
+### Directory Rules
+
+- **`src/`**: All source code goes here. Organized by:
+  - `components/`: Object-specific scripts and UI
+  - `util/`: Shared utility modules
+- **`.tts/`**: Auto-generated, never commit or manually edit
+- **Root level**: Configuration files only
+
+---
+
+## Bohnanza Game Rules
+
+**These are the official Bohnanza rules from the official rulebook that must be implemented correctly:**
+
+### Setup (Base Game: 3-5 Players)
+
+- **Player Count**: 3-5 players (mod supports up to 7 colors for variant mode)
+- **Bean Fields**:
+  - **3 players**: Each player has 3 bean fields (all unlocked at start)
+  - **4-5 players**: Each player has 2 bean fields (Left unlocked, Middle locked at start)
+- **Initial Hand**: Each player receives 5 bean cards
+- **Hand Order Rule (CRITICAL)**:
+  - **You CANNOT change the order of cards in your hand at any point during the game**
+  - The first card dealt is the first card in your hand (completely visible)
+  - All other cards are placed behind it in the order drawn
+  - You may never sort your cards for any reason
+- **Deck**: Shuffle all 104 bean cards (8 types in base game), deal 5 to each player
+- **Draw Pile**: Remaining cards form the draw pile (gold coin side up)
+- **Discard Pile**: Starts empty, placed next to draw pile
+- **Gold Coins**: Each player starts with 0 coins (gold coin stack in front of player)
+
+### Turn Structure (4 Phases - Must Complete in Order)
+
+#### Phase 1: Plant Bean Cards from Your Hand
+
+- **MANDATORY**: You MUST plant the first card in your hand (the completely visible one) in one of your unlocked fields
+- **OPTIONAL**: After planting the first card, you may choose to plant one more card (the one that is now completely visible)
+- **Cannot plant a third bean** at this time
+- **Field Rules**:
+  - Each field can only contain one kind of bean at a time
+  - You can plant the same kind of bean in two different fields simultaneously
+  - You cannot plant two kinds of bean in the same field
+- **If no space**: If you must plant a bean type you don't have space for, you must harvest a field first (see Harvesting)
+- **If hand is empty**: Skip Phase 1 and go straight to Phase 2
+
+#### Phase 2: Turn Over and Trade Bean Cards
+
+- **Turn Over**: Turn over the top two cards from the draw pile, place them face-up next to the draw pile
+- **Ownership**: The turned-over cards belong to the active player
+- **Trading Rules**:
+  - **Only the active player** can initiate trades with other players
+  - Other players cannot trade with each other
+  - Active player can use:
+    - The two turned-over cards
+    - Any cards from their hand (regardless of position in hand)
+  - Other players can trade using any cards from their hand
+  - **Cannot trade**: Cards received in a trade, cards already in fields
+  - **Trade format**: Any number of beans for any number of other beans (e.g., 2 Blue Beans for 1 Green Bean)
+  - **Agreement required**: Both players must agree to the trade
+  - **Gifts**: As a special form of trade, you can give cards to another player (they must agree to accept)
+- **Traded Cards**: Place received cards horizontally next to your bean fields (do NOT add to hand)
+- **Trading Duration**: Continue trading for as long as you like, even after turned-over cards are gone
+- **End Trading**: Tell other players when you want to stop (ends Phase 2)
+
+#### Phase 3: Plant Turned-over and Traded Bean Cards
+
+- **All players** who have horizontal cards next to their bean fields must now plant them
+- **Active player** must also plant any turned-over cards they didn't trade away
+- **Planting Order**: You can plant your new bean cards in any order you choose
+- **If no space**: If you must plant a bean type that doesn't match existing fields, you must harvest a field first
+
+#### Phase 4: Draw Bean Cards
+
+- **Base Game (3-5 players)**: Active player draws **3 cards**, one after another, from the draw pile
+- **Card Placement**: Put each card in the back of your hand, behind the last card, in the order drawn
+- **Turn End**: After drawing, the player to your left becomes the new active player
+
+### Field Rules
+
+- **Field Configuration**:
+  - **3 players**: 3 fields per player (all unlocked at start)
+  - **4-5 players**: 2 fields per player (Left unlocked, Middle locked)
+  - **Variant (6-7 players)**: 2 fields per player (Left unlocked, Middle locked)
+- **Bean Types**: Each field can only contain one kind of bean at a time
+- **Planting**: Cards are stacked on top of each other in the field
+- **Field Unlocking**:
+  - Middle field can be unlocked (cost varies by implementation)
+  - Right field available in variant mode (cost varies by implementation)
+
+### Harvesting Beans
+
+- **When**: You may harvest beans from your fields at any time during the game, even when not the active player
+- **Beanometer System**: Each bean type has a "beanometer" showing gold coins earned for different quantities
+- **Harvesting Steps**:
+  1. Count the number of cards in the bean field you want to harvest
+  2. Check the top card's beanometer
+  3. Turn over as many cards as you get gold coins (according to beanometer) so their gold coin sides show
+  4. Put these turned-over cards on your gold coin stack
+  5. Put the remaining cards from your field face-up on the discard pile
+  6. After harvesting, the field must be empty (you cannot harvest only part of a field)
+- **Note**: Some harvests may not earn any gold coins (e.g., 1-2 Stink Beans = 0 coins)
+
+### Bean Protection Rule
+
+- **Critical Rule**: If there is only one bean card in one of your fields, you cannot harvest it as long as you have another field containing more than one bean card
+
+### Bean Values (Beanometer Examples)
+
+Each bean type has its own beanometer. Examples from the rulebook:
+
+- **Stink Bean**: 1-2 beans = 0 coins, 3-4 = 1 coin, 5-6 = 2 coins, 7 = 3 coins, 8+ = 4 coins
+- **Chili Bean**: Values shown on beanometer (e.g., 3 beans = 1 coin)
+- **Other beans**: Each has unique beanometer values
+- **Implementation**: Must implement exact beanometer values for all bean types according to official rules
+
+### Hand Management (CRITICAL RULES)
+
+- **Fixed Order**: Cards in hand MUST maintain their drawn order - this is the most important rule
+- **No Reordering**: Players cannot rearrange cards in their hand for any reason
+- **First Card Visibility**: The first card is completely visible to the player
+- **New Cards**: All new cards go to the back of the hand, in the order drawn
+- **First Card Rule**: The first card in hand MUST be planted in Phase 1 (cannot be discarded or traded first)
+
+### Trading Rules (Detailed)
+
+- **Active Player Only**: Only the active player can initiate trades
+- **Tradeable Cards**:
+  - Active player: Turned-over cards + any hand cards
+  - Other players: Any hand cards
+- **Cannot Trade**: Cards received in a trade, cards in fields
+- **Trade Agreement**: Both players must agree before cards are removed from hands
+- **Card Placement**: Traded cards are placed horizontally next to fields (not in hand)
+- **Multiple Trades**: Can continue trading for as long as desired
+- **Gifts**: Can give cards to other players (they must agree to accept)
+
+### Deck Depletion and Reshuffling
+
+- **When Draw Pile is Empty**: Re-shuffle the discard pile, turn it over, and put it back as the new draw pile
+- **Game End Tracking**: Track how many times the deck has been depleted
+
+### Game End Conditions
+
+- **Base Game (3-5 players)**: Game ends when draw pile runs out for the **third time**
+- **Variant (3 players)**: Game ends when draw pile runs out for the **second time**
+- **Variant (4-7 players)**: Game ends when draw pile runs out for the **third time**
+- **If Depletion During Phase 2**: Complete phases 2 and 3 of your turn (even if only one card was turned over instead of two), then game ends
+- **Final Harvest**: At game end, harvest all bean fields and give appropriate gold coins
+- **Hand Cards**: Cards in hand do not count towards total
+- **Winning**: Player with the most gold coins wins
+- **Tiebreaker**: If tied, the tied player who sits furthest from starting player (clockwise) wins
+
+### Variant Mode: Three New Types of Beans (3-7 Players)
+
+- **Additional Beans**: Cocoa Bean, Wax Bean, Coffee Bean
+- **Bean Removal** (based on player count):
+  - **3 players**: Remove Cocoa Beans
+  - **4-5 players**: Remove Coffee Beans
+  - **6-7 players**: Remove Cocoa and Garden Beans
+- **Field Configuration**:
+  - **3 players**: 3 bean fields per player
+  - **4-7 players**: 2 bean fields per player
+- **Phase 4 Change**: Every player draws **one card** from the draw pile (starting with active player, clockwise)
+- **Game End**:
+  - **3 players**: Ends when draw pile runs out for the **second time**
+  - **4-7 players**: Ends when draw pile runs out for the **third time**
+
+### Two-Player Variant (Bean Duel)
+
+- **Bean Removal**: Remove Garden Beans and Cocoa Beans
+- **Selling Restriction**: Player may only sell beans from fields on their turn
+- **Game End**: Ends when draw deck is exhausted for the **first time**
+- **Turn Structure** (different from base game):
+  1. Plant or discard offered bean cards (from opponent's previous turn)
+  2. Plant bean cards & discard (plant 1-2 cards, may discard 1 card from anywhere in hand)
+  3. Draw, plant, and offer beans (draw 3 cards, may add matching cards from discard, plant any, leave rest as offer)
+  4. Draw new bean cards (draw 2 cards, one at a time, to back of hand)
+
+### Implementation Notes
+
+- **State Persistence**: Game state must persist across saves/loads
+- **Player Colors**: Use TTS player colors (White, Red, Orange, Yellow, Green, Pink, Purple)
+- **GUID System**: All objects referenced by GUID (see `src/util/guidList.lua`)
+- **Field Locking**: Visual and functional locking of fields (see `src/components/field.lua`)
+- **Hand Order Enforcement**: Must strictly enforce hand order - this is the most critical rule
+- **Beanometer Implementation**: Must implement exact beanometer values for all bean types
+- **Deck Depletion Tracking**: Must track how many times deck has been depleted
+- **Variant Mode Toggle**: Variant mode toggleable via center object UI
+
+---
+
+## Development Workflow
+
+### Starting Work
+
+1. Open `tts_bohnanza.code-workspace` in VSCode
+2. Start Tabletop Simulator and load the Bohnanza save
+3. Run **`TTS Editor: Get Objects`** to sync scripts from TTS
+4. Make changes in `src/` directory
+
+### Making Changes
+
+1. Edit files in `src/` directory
+2. Use **`TTS Editor: Save and Play`** to:
+   - Bundle all modules
+   - Upload to TTS
+   - Reload the game
+3. Test changes in TTS
+4. Iterate as needed
+
+### Faster Iteration
+
+- Use **`TTS Editor: Update Object`** for single-object changes (no full reload)
+- Use **`TTS Editor: Execute`** to test code snippets quickly
+
+### Before Committing
+
+1. Ensure all changes are in `src/` directory
+2. Test with "Save and Play" to verify bundling works
+3. Check that `.tts/` is in `.gitignore` (should not be committed)
+4. Verify code follows style guidelines
+
+---
+
+## Code Organization
+
+### Module Dependencies
+
+- **Global Script** (`src/global.lua`): Entry point, minimal logic
+- **Components**: Object-specific scripts (center, field, etc.)
+- **Utilities**: Shared modules used by multiple components
+
+### Common Utilities
+
+- **`src/util/constants.lua`**: Game constants (colors, debug flags, etc.)
+- **`src/util/functions.lua`**: Shared helper functions
+- **`src/util/guidList.lua`**: GUID references for all game objects
+- **`src/util/fieldParser.lua`**: Field name parsing utilities
+- **`src/util/fieldState.lua`**: Field state management
+- **`src/util/fieldUI.lua`**: Field UI manipulation
+- **`src/util/gameSetup.lua`**: Initial game setup logic
+- **`src/util/gameStart.lua`**: Game start logic
+- **`src/util/positionConfig.lua`**: Position configuration
+
+### Adding New Features
+
+1. Create module in appropriate directory (`components/` or `util/`)
+2. Use `require()` to import dependencies
+3. Export public API via return statement
+4. Update bundler config if adding new entry points
+5. Document with `---` comments
+
+---
+
+## Testing and Debugging
+
+### Debug Mode
+
+- Set `Constants.DEBUG = true` in `src/util/constants.lua`
+- Debug mode:
+  - Resets state on load (returns empty string from `onSave()`)
+  - Always runs game setup
+  - Enables additional logging
+
+### Logging
+
+- Use `log()` for debug messages
+- Use `Functions.broadcastError()`, `Functions.broadcastWarning()`, `Functions.broadcastSuccess()` for user messages
+- Log important state changes and errors
+
+### Common Issues
+
+- **Object not found**: Check GUID in `guidList.lua`, verify object exists in TTS
+- **State not persisting**: Check `onSave()` returns valid JSON, verify not in DEBUG mode
+- **Bundling errors**: Check `require()` paths, verify all modules exist
+- **UI not updating**: Check XML file is bundled, verify UI element IDs match
+
+### Testing Checklist
+
+- [ ] Game setup works correctly
+- [ ] Fields initialize with correct lock states
+- [ ] Player colors are validated
+- [ ] State persists across save/load
+- [ ] Bundling works without errors
+- [ ] All `require()` statements resolve correctly
+
+---
+
+## Additional Resources
+
+- **TTS Editor Documentation**: https://sebaestschjin.github.io/tts-tools/editor/latest/
+- **Tabletop Simulator API**: Use Context7 to find latest documentation
+- **Lua 5.2 Reference**: Use Context7 for Lua documentation
+- **Bohnanza Official Rules**: Reference official rulebook for exact bean values and edge cases
+
+---
+
+## Summary of Critical Rules
+
+1. **ALWAYS use Context7** for documentation and code references
+2. **ALWAYS edit in `src/` directory**, never in `.tts/`
+3. **ALWAYS use TTS Editor commands**, not manual script editing
+4. **ALWAYS follow Bohnanza game rules** as specified above
+5. **ALWAYS validate inputs** (GUIDs, colors, player data)
+6. **ALWAYS use module pattern** for code organization
+7. **ALWAYS document functions** with `---` comments
+8. **NEVER commit `.tts/` directory**
+9. **NEVER manually edit bundled scripts**
+10. **NEVER use global variables** - use module exports
+
+---
+
+**Last Updated**: Generated with Context7 and TTS Editor documentation
+**Maintainer**: Follow these rules for all future development
