@@ -1,0 +1,15 @@
+{
+  "source": {
+    "directory": ".",
+    "entryPoints": [
+      {
+        "source": "src/global.lua",
+        "target": "Global.-1.lua"
+      }
+    ]
+  },
+  "bundle": {
+    "outputDirectory": ".tts"
+  }
+}
+

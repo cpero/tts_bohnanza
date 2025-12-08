@@ -1,0 +1,27 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "ttse.source.directory": ".",
+    "ttse.bundle.enabled": true,
+    "ttse.bundle.config": ".ttsbundler.json",
+    "Lua.runtime.version": "Lua 5.2",
+    "Lua.diagnostics.globals": [
+      "getObjectFromGUID",
+      "JSON",
+      "log",
+      "Player",
+      "Color",
+      "Wait",
+      "self",
+      "spawnObject",
+      "spawnObjectJSON",
+      "broadcastToAll",
+      "printToAll"
+    ]
+  }
+}
+
