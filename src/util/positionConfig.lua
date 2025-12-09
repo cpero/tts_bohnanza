@@ -156,6 +156,11 @@ PositionConfig.Rules = {
   rotation = Vector(60.43, 180, 0)
 }
 
+PositionConfig.ScoreBags = {
+  -- Scale for all score bags
+  scale = Vector(1, 1, 1)
+}
+
 --- Center snap points for draw/discard
 PositionConfig.CenterSnapPoints = {
   { position = { -6, 0, 0 }, rotation = { 0, 180, 0 }, rotation_snap = true },

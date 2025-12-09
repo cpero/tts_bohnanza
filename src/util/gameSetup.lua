@@ -126,14 +126,75 @@ function GameSetup.setNotes()
   )
 end
 
---- Hides score bags from other players
+--- Initializes all score bags (position, color, and hide completely)
+--- @param center table The center object to position bags relative to
+function GameSetup.initScoreBags(center)
+  local centerRot = center.getRotation()
+  
+  -- Player color to TTS color mapping
+  local colorMap = {
+    White = Color.White,
+    Orange = Color.Orange,
+    Green = Color.Green,
+    Yellow = Color.Yellow,
+    Red = Color.Red,
+    Pink = Color.Pink,
+    Purple = Color.fromString('Purple')  -- Purple needs special handling
+  }
+  
+  for color, playerObj in pairs(GuidList.Players) do
+    local scoreBag = getObjectFromGUID(playerObj.Score)
+    local middleField = getObjectFromGUID(playerObj.MiddleField)
+    
+    if scoreBag and middleField then
+      -- Get the middle field's position
+      local fieldPos = middleField.getPosition()
+      local bagPos
+      
+      -- Calculate bag position based on player color
+      if color == 'White' or color == 'Orange' or color == 'Green' then
+        -- Bottom players: x matches field, z = -40 (absolute)
+        bagPos = Vector(fieldPos.x, 1.30, -40)
+      elseif color == 'Yellow' or color == 'Red' then
+        -- Right side players: x = 60 (absolute), z matches field
+        bagPos = Vector(60, 1.30, fieldPos.z)
+      elseif color == 'Pink' or color == 'Purple' then
+        -- Left side players: x = -60 (absolute), z matches field
+        bagPos = Vector(-60, 1.30, fieldPos.z)
+      end
+      
+      if bagPos then
+        -- Position the score bag
+        scoreBag.setPosition(bagPos)
+        scoreBag.setRotation(centerRot)
+        scoreBag.setScale(PositionConfig.ScoreBags.scale)
+        
+        -- Color the bag to match player color
+        local bagColor = colorMap[color]
+        if bagColor then
+          scoreBag.setColorTint(bagColor)
+        end
+        
+        -- Hide the bag completely (invisible to all players)
+        scoreBag.setInvisibleTo(Player.getColors())
+        
+        -- Lock the bag in place
+        scoreBag.locked = true
+        scoreBag.interactable = true
+      end
+    end
+  end
+end
+
+--- Shows score bags only to their respective owners (called during game start)
 --- @param Functions table The Functions utility module
-function GameSetup.hideScoreBags(Functions)
+function GameSetup.showScoreBags(Functions)
   for _, color in ipairs(getSeatedPlayers()) do
     local playerObj = GuidList.Players[color]
     if playerObj then
       local scoreBag = getObjectFromGUID(playerObj.Score)
       if scoreBag then
+        -- Make visible only to the owning player
         scoreBag.setInvisibleTo(Functions.allButCurrentPlayer(color))
       end
     end
@@ -226,8 +287,8 @@ function GameSetup.setupAll(center, Functions)
   GameSetup.initRules(center)
   GameSetup.initBeanDecks(center)
   GameSetup.initPlayerSpace()
+  GameSetup.initScoreBags(center)
   GameSetup.setNotes()
-  GameSetup.hideScoreBags(Functions)
   
   -- Fields are already moved away during initField, but ensure they stay hidden
   -- Wait a moment to ensure all objects are fully initialized

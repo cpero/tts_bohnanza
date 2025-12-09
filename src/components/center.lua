@@ -177,7 +177,10 @@ end
 --- Called when the game is saved
 --- @return string JSON-encoded state (empty in debug mode)
 function onSave()
-  GameSetup.hideScoreBags(Functions)
+  -- Show score bags for seated players if game has started
+  if state.started then
+    GameSetup.showScoreBags(Functions)
+  end
   
   if Constants.DEBUG then
     return ''
@@ -304,6 +307,9 @@ function startGameProcess()
   
   -- Clear notes
   Notes.setNotes('')
+  
+  -- Show score bags to their respective owners
+  GameSetup.showScoreBags(Functions)
   
   -- Combine, shuffle, and deal cards
   GameStart.startGame(self, state.variant, 5)
