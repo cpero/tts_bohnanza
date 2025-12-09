@@ -1,6 +1,49 @@
 --- Position Configuration
 --- Defines all positioning constants and calculations for game objects
+local GuidList = require('src.util.guidList')
+
 local PositionConfig = {}
+
+--- Gets the current table dimensions
+--- @return number, number Table width and depth scale factors
+local function getTableDimensions()
+  -- Use the table surface object directly by GUID (4ee1f2)
+  local tableSurface = getObjectFromGUID('4ee1f2')
+  if not tableSurface then
+    log('WARNING: Table surface (4ee1f2) not found, using default scale 1.0')
+    return 1.0, 1.0
+  end
+  
+  local tableScale = tableSurface.getScale()
+  -- Table surface scale is {width, 1, depth} where:
+  -- width = X scale (horizontal/left-right)
+  -- depth = Z scale (forward-back)
+  local width = tableScale.x
+  local depth = tableScale.z
+  
+  -- Verify we got valid values
+  if not width or not depth or width <= 0 or depth <= 0 then
+    log('WARNING: Invalid table scale values (width=' .. tostring(width) .. ', depth=' .. tostring(depth) .. '), using default 1.0')
+    return 1.0, 1.0
+  end
+  
+  return width, depth
+end
+
+--- Calculates scale factors based on table size
+--- Standard TTS table is 1.0x1.0, cards are typically sized for this
+--- We'll use the average of width and depth to maintain proportions
+--- @return number Scale factor for fields and other elements
+local function calculateScaleFactor()
+  local width, depth = getTableDimensions()
+  -- Use average of width and depth to maintain square proportions
+  -- This ensures fields scale proportionally regardless of table shape
+  local avgScale = (width + depth) / 2.0
+  
+  -- For a standard 1.0x1.0 table, this returns 1.0
+  -- For larger tables, this scales proportionally
+  return avgScale
+end
 
 --- Hand positioning configuration
 PositionConfig.Hands = {
@@ -32,6 +75,9 @@ PositionConfig.Hands = {
 
 --- Field positioning configuration relative to player hand zones
 PositionConfig.Fields = {
+  -- Scale for all fields
+  scale = Vector(1, 1, 1),
+  
   -- Y offset for all fields
   yOffset = -3,
   
@@ -56,6 +102,25 @@ PositionConfig.Fields = {
       right = Vector(-15, -3, 10)
     }
   }
+}
+
+--- Card scaling configuration
+PositionConfig.Cards = {
+  -- Scale factor for cards (calculated based on table size)
+  -- Cards should be manually scaled ONCE in TTS to match this value
+  -- After scaling cards manually, this value should match the table scale
+  getScale = function()
+    local scaleFactor = calculateScaleFactor()
+    -- Cards should scale with the table
+    -- Standard card scale is 1.0 for a 1.0x1.0 table
+    return scaleFactor
+  end,
+  
+  -- Instructions for manual card scaling:
+  -- 1. Get the scale factor by calling PositionConfig.Cards.getScale()
+  -- 2. In TTS, select all card objects (bean decks)
+  -- 3. Set their scale to this value (e.g., if scaleFactor is 1.2, set scale to 1.2)
+  -- 4. Save the game - cards will now be properly scaled
 }
 
 --- Gets the field layout for a specific color
@@ -96,6 +161,33 @@ PositionConfig.CenterSnapPoints = {
   { position = { -6, 0, 0 }, rotation = { 0, 180, 0 }, rotation_snap = true },
   { position = { 6, 0, 0 },  rotation = { 0, 180, 0 }, rotation_snap = true }
 }
+
+--- Gets the recommended card scale for manual scaling
+--- Call this function from TTS console to get the scale value
+--- Then manually scale all card objects (bean decks) to this value in TTS
+--- @return number The scale factor to apply to cards
+function PositionConfig.getCardScale()
+  local scale = PositionConfig.Cards.getScale()
+  local width, depth = getTableDimensions()
+  
+  log('=== CARD SCALING INFORMATION ===')
+  log('Table surface (4ee1f2) dimensions: ' .. width .. ' x ' .. depth)
+  log('Recommended card scale: ' .. scale)
+  log('Instructions:')
+  log('1. Select all bean deck objects in TTS')
+  log('2. Set their scale to: ' .. scale)
+  log('3. Save the game')
+  log('4. Cards will now be properly scaled relative to the table')
+  log('================================')
+  print('Table: ' .. width .. ' x ' .. depth .. ' | Card scale: ' .. scale)
+  return scale
+end
+
+--- Gets the current table dimensions (for debugging)
+--- @return number, number Table width and depth
+function PositionConfig.getTableDimensions()
+  return getTableDimensions()
+end
 
 return PositionConfig
 

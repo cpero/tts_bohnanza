@@ -52,8 +52,18 @@ function FieldUI.setupSnapPoints(object)
     error('Invalid object')
   end
   
+  -- Verify object is still valid and accessible
+  local pos = object.getPosition()
+  if not pos then
+    log('WARNING: Cannot set snap points - object position not accessible')
+    return
+  end
+  
+  -- Set snap point with 180 degree Y rotation to make cards face the player
+  -- This matches the center snap points configuration
+  -- Note: In TTS, snap point rotations are relative to the object's rotation
   object.setSnapPoints({
-    { position = { 0, 0, 0 }, rotation = { 0, 0, 0 }, rotation_snap = true }
+    { position = { 0, 0, 0 }, rotation = { 0, 180, 0 }, rotation_snap = true }
   })
 end
 

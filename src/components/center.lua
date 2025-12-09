@@ -37,10 +37,8 @@ end
 local function validateSeatedPlayers()
   local seatedPlayers = getSeatedPlayers()
   
-  log('validateSeatedPlayers: Found ' .. #seatedPlayers .. ' seated players')
-  for i, color in ipairs(seatedPlayers) do
-    log('  Player ' .. i .. ': ' .. tostring(color))
-    -- Track this color as having been sat in (for hotseat mode)
+  -- Track this color as having been sat in (for hotseat mode)
+  for _, color in ipairs(seatedPlayers) do
     if color and GuidList.Players[color] then
       satInColors[color] = true
     end
@@ -54,36 +52,28 @@ local function validateSeatedPlayers()
     end
   end
   
-  log('  Unique colors sat in: ' .. uniqueColorCount)
-  
   -- In hotseat mode, getSeatedPlayers() might only return the current player
   -- So we check how many unique colors have been sat in
   if #seatedPlayers == 1 then
     -- Hotseat mode: need at least 3 different colors to have been sat in
-    if uniqueColorCount >= 3 then
-      log('  Hotseat mode: 3+ colors sat in, validation passed')
-      return true
-    else
-      log('  Hotseat mode: Only ' .. uniqueColorCount .. ' colors sat in, need 3')
+    if uniqueColorCount < 3 then
       return false
     end
+    return true
   end
   
   -- Multiplayer mode: need at least 3 players currently seated
   if #seatedPlayers < 3 then
-    log('  Validation failed: Need at least 3 players, found ' .. #seatedPlayers)
     return false
   end
   
   -- Check that all seated players have valid colors
   for _, playerColor in ipairs(seatedPlayers) do
     if not GuidList.Players[playerColor] then
-      log('  Validation failed: Invalid player color: ' .. tostring(playerColor))
       return false
     end
   end
   
-  log('  Validation passed!')
   return true
 end
 
@@ -91,19 +81,15 @@ end
 local function updateStartGameButton()
   local isValid = validateSeatedPlayers()
   
-  log('updateStartGameButton: isValid=' .. tostring(isValid))
-  
   -- Keep button always interactable so onClick always fires
   -- We'll handle validation inside onClick and show error messages
   -- But we can change the visual appearance
   if isValid then
     self.UI.setAttribute('startGameBtn', 'interactable', 'true')
     self.UI.setAttribute('startGameBtn', 'color', '#FFFFFF')
-    log('  Button enabled')
   else
     self.UI.setAttribute('startGameBtn', 'interactable', 'true')
     self.UI.setAttribute('startGameBtn', 'color', '#888888')
-    log('  Button disabled (visual only)')
   end
 end
 
@@ -204,7 +190,6 @@ end
 function setupGame()
   -- Allow re-setup in DEBUG mode
   if state.started and not Constants.DEBUG then
-    log('Game already started')
     return
   end
   
@@ -215,12 +200,8 @@ end
 
 --- Handles the "Start Game" button click
 function onClickStartGame()
-  log('Starting game...')
-  
   if state.started then
-    log('Game already started')
     local msg = 'The game has already started!'
-    log('Broadcasting: ' .. msg)
     print(msg)
     pcall(function()
       broadcastToAll(msg, { r = 1, g = 0, b = 0 })
@@ -273,16 +254,12 @@ function onClickStartGame()
     end
     
     -- Broadcast the message - use print() which definitely works in TTS
-    log('Broadcasting error message: ' .. msg)
     print(msg)
     
     -- Also try broadcastToAll (may not work in hotseat)
-    local success, err = pcall(function()
+    pcall(function()
       broadcastToAll(msg, { r = 1, g = 0, b = 0 })
     end)
-    if not success then
-      log('broadcastToAll failed: ' .. tostring(err))
-    end
     
     return
   end
@@ -298,7 +275,6 @@ function onClickStartGame()
   
   -- If 3 players, unlock all fields (all players start with all 3 fields unlocked)
   if playerCount == 3 then
-    log('3-player game: Unlocking all fields for all players')
     -- Wait a moment for fields to become visible before unlocking
     Wait.time(function()
       unlockAllFieldsForPlayers()
@@ -338,13 +314,10 @@ end
 --- Handles the "Toggle Variant" button click
 function onClickToggleVariant()
   if state.started then
-    log('Game already started')
     return
   end
   
   state.variant = not state.variant
-  log('Variant mode: ' .. tostring(state.variant))
-  
   updateVariantUI()
 end
 
@@ -384,11 +357,6 @@ function onPlayerChangeColor()
     end
   end
   
-  log('onPlayerChangeColor: Tracked colors:')
-  for color, _ in pairs(satInColors) do
-    log('  - ' .. tostring(color))
-  end
-  
   -- Update button states
   updateButtonStates()
 end
@@ -396,7 +364,6 @@ end
 --- Unlocks all fields for all seated players (for 3-player games)
 function unlockAllFieldsForPlayers()
   local seatedPlayers = getSeatedPlayers()
-  log('Unlocking all fields for ' .. #seatedPlayers .. ' seated players')
   
   for _, playerColor in ipairs(seatedPlayers) do
     local playerData = GuidList.Players[playerColor]
@@ -404,18 +371,10 @@ function unlockAllFieldsForPlayers()
       -- Unlock the Right field (third field) for this player
       local rightField = getObjectFromGUID(playerData.RightField)
       if rightField then
-        log('  Unlocking Right field for ' .. playerColor)
-        local success, err = pcall(function()
+        pcall(function()
           rightField.call('unlockField')
         end)
-        if not success then
-          log('ERROR: Failed to unlock field for ' .. playerColor .. ': ' .. tostring(err))
-        end
-      else
-        log('WARNING: Right field not found for ' .. playerColor)
       end
-    else
-      log('WARNING: Player data not found for ' .. playerColor)
     end
   end
 end
@@ -436,5 +395,29 @@ end
 --- @return boolean True if variant mode is enabled
 function isVariantMode()
   return state.variant
+end
+
+--- Gets the recommended card scale for manual scaling
+--- Call this from TTS console: getCardScale()
+--- @return number The scale factor to apply to cards
+function getCardScale()
+  local scale = PositionConfig.Cards.getScale()
+  local tableWidth, tableDepth = PositionConfig.getTableDimensions()
+  
+  local msg = '=== CARD SCALING INFORMATION ===\n' ..
+              'Table dimensions: ' .. tableWidth .. ' x ' .. tableDepth .. '\n' ..
+              'Recommended card scale: ' .. scale .. '\n\n' ..
+              'Instructions:\n' ..
+              '1. Select all bean deck objects in TTS\n' ..
+              '2. Set their scale to: ' .. scale .. '\n' ..
+              '3. Save the game\n' ..
+              '4. Cards will now be properly scaled relative to the table\n' ..
+              '================================'
+  
+  log(msg)
+  print('Card scale: ' .. scale)
+  print('See log (F12) for full instructions')
+  
+  return scale
 end
 

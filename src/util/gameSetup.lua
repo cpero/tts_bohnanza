@@ -12,8 +12,6 @@ local fieldPositions = {}
 --- Initializes all player hand zones
 --- @param center table The center object to position hands relative to
 function GameSetup.initHands(center)
-  log('Initializing player hands')
-  
   local centerPos = center.getPosition()
   local centerRot = center.getRotation()
   
@@ -23,8 +21,6 @@ function GameSetup.initHands(center)
       hand.setPosition(centerPos + offset)
       hand.setRotation(centerRot + PositionConfig.Hands.rotations[color])
       hand.setScale(PositionConfig.Hands.scale)
-    else
-      log('WARNING: Hand not found for color: ' .. color)
     end
   end
 end
@@ -32,11 +28,8 @@ end
 --- Initializes the rules book
 --- @param center table The center object to position rules relative to
 function GameSetup.initRules(center)
-  log('Initializing rules')
-  
   local rules = getObjectFromGUID(GuidList.Rules)
   if not rules then
-    log('ERROR: Rules object not found')
     return
   end
   
@@ -50,8 +43,6 @@ end
 --- Initializes all bean decks
 --- @param center table The center object to position decks relative to
 function GameSetup.initBeanDecks(center)
-  log('Initializing bean decks')
-  
   local centerPos = center.getPosition()
   local centerRot = center.getRotation()
   local xPos = PositionConfig.BeanDecks.startX
@@ -61,11 +52,10 @@ function GameSetup.initBeanDecks(center)
     if deck then
       deck.setPosition(centerPos + Vector(xPos, PositionConfig.BeanDecks.yOffset, PositionConfig.BeanDecks.zOffset))
       deck.setRotation(centerRot + PositionConfig.BeanDecks.rotation)
+      deck.setScale({3.80000007152557, 1, 3.80000007152557})
       deck.interactable = Constants.DEBUG
       deck.locked = not Constants.DEBUG
       xPos = xPos + PositionConfig.BeanDecks.spacing
-    else
-      log('WARNING: Bean deck not found: ' .. name)
     end
   end
 end
@@ -87,11 +77,15 @@ local function initField(field, handPos, handRot, fieldOffset, debug)
   -- Calculate the correct position
   local correctPos = handPos + fieldOffset
   
-  -- Store the correct position for later restoration
+  -- Set field scale (hardcoded to match card size with margin)
+  field.setScale(PositionConfig.Fields.scale)
+  
+  -- Store the correct position and scale for later restoration
   local fieldGuid = field.getGUID()
   fieldPositions[fieldGuid] = {
     position = correctPos,
-    rotation = handRot
+    rotation = handRot,
+    scale = PositionConfig.Fields.scale
   }
   
   -- Move field far away to hide it (way below the table)
@@ -101,8 +95,6 @@ end
 
 --- Initializes all player spaces (fields)
 function GameSetup.initPlayerSpace()
-  log('Initializing player space')
-  
   for color, playerObj in pairs(GuidList.Players) do
     local hand = getObjectFromGUID(playerObj.Hand)
     if hand then
@@ -119,8 +111,6 @@ function GameSetup.initPlayerSpace()
       
       local rightField = getObjectFromGUID(playerObj.RightField)
       initField(rightField, handPos, handRot, layout.right, Constants.DEBUG)
-    else
-      log('WARNING: Hand not found for ' .. color)
     end
   end
 end
@@ -129,7 +119,7 @@ end
 function GameSetup.setNotes()
   Notes.setNotes(
     'Welcome to Bohnanza!\n\n' ..
-    'This is setup for basic scripting and supports 2-7 players.\n' ..
+    'This is setup for basic scripting and supports 3-7 players. (Duo coming soon)\n' ..
     'Every player has 3 fields and a score bag that is only visible to them.\n\n' ..
     'Once all players are seated, use the button to start the game.\n\n' ..
     'Have fun!'
@@ -152,15 +142,12 @@ end
 
 --- Shows fields for seated players (hides fields for non-seated players)
 function GameSetup.showFieldsForSeatedPlayers()
-  log('Showing fields for seated players')
-  
   local seatedPlayers = getSeatedPlayers()
   local seatedColorSet = {}
   
   -- Create a set of seated player colors for quick lookup
   for _, color in ipairs(seatedPlayers) do
     seatedColorSet[color] = true
-    log('  Seated player: ' .. tostring(color))
   end
   
   -- For each player color, show or hide their fields
@@ -185,38 +172,27 @@ function GameSetup.showFieldsForSeatedPlayers()
         local storedPos = fieldPositions[fieldGuid]
         
         if isSeated then
-          -- Move field back to its correct position
+          -- Move field back to its correct position and restore scale
           if storedPos then
             field.setPosition(storedPos.position)
             field.setRotation(storedPos.rotation)
-            log('  Moved ' .. color .. ' ' .. fieldData.name .. ' field to correct position')
-          else
-            log('WARNING: No stored position for ' .. color .. ' ' .. fieldData.name .. ' field')
+            if storedPos.scale then
+              field.setScale(storedPos.scale)
+            end
           end
         else
           -- Keep field far away (hidden)
           if storedPos then
             field.setPosition(storedPos.position + Vector(0, -1000, 0))
-            log('  Kept ' .. color .. ' ' .. fieldData.name .. ' field hidden')
           end
         end
-      else
-        log('WARNING: ' .. fieldData.name .. ' field not found for ' .. color)
       end
-    end
-    
-    if isSeated then
-      log('  Showing fields for ' .. color)
-    else
-      log('  Hiding fields for ' .. color)
     end
   end
 end
 
 --- Explicitly hides all fields by moving them far away (called after setup to ensure they're hidden)
 function GameSetup.hideAllFields()
-  log('Explicitly hiding all fields by moving them away')
-  
   for color, playerObj in pairs(GuidList.Players) do
     local leftField = getObjectFromGUID(playerObj.LeftField)
     local middleField = getObjectFromGUID(playerObj.MiddleField)
@@ -236,22 +212,16 @@ function GameSetup.hideAllFields()
         if storedPos then
           -- Move field far away
           field.setPosition(storedPos.position + Vector(0, -1000, 0))
-          log('  Hid ' .. color .. ' ' .. fieldData.name .. ' field')
         end
-      else
-        log('WARNING: ' .. color .. ' ' .. fieldData.name .. ' field not found')
       end
     end
   end
-  
-  log('Finished hiding all fields')
 end
 
 --- Runs all setup procedures
 --- @param center table The center object
 --- @param Functions table The Functions utility module
 function GameSetup.setupAll(center, Functions)
-  log('Setting up game...')
   GameSetup.initHands(center)
   GameSetup.initRules(center)
   GameSetup.initBeanDecks(center)

@@ -456,7 +456,7 @@ Each bean type has its own beanometer. Examples from the rulebook:
 ## Additional Resources
 
 - **TTS Editor Documentation**: https://sebaestschjin.github.io/tts-tools/editor/latest/
-- **Tabletop Simulator API**: Use Context7 to find latest documentation
+- **Tabletop Simulator API**: Use Context7 to find latest documentation and consult https://api.tabletopsimulator.com/
 - **Lua 5.2 Reference**: Use Context7 for Lua documentation
 - **Bohnanza Official Rules**: Reference official rulebook for exact bean values and edge cases
 
