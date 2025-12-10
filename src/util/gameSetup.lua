@@ -53,8 +53,8 @@ function GameSetup.initBeanDecks(center)
       deck.setPosition(centerPos + Vector(xPos, PositionConfig.BeanDecks.yOffset, PositionConfig.BeanDecks.zOffset))
       deck.setRotation(centerRot + PositionConfig.BeanDecks.rotation)
       deck.setScale({3.80000007152557, 1, 3.80000007152557})
-      deck.interactable = Constants.DEBUG
-      deck.locked = not Constants.DEBUG
+      deck.interactable = true
+      deck.locked = true
       xPos = xPos + PositionConfig.BeanDecks.spacing
     end
   end
@@ -189,16 +189,68 @@ end
 --- Shows score bags only to their respective owners (called during game start)
 --- @param Functions table The Functions utility module
 function GameSetup.showScoreBags(Functions)
-  for _, color in ipairs(getSeatedPlayers()) do
-    local playerObj = GuidList.Players[color]
-    if playerObj then
-      local scoreBag = getObjectFromGUID(playerObj.Score)
-      if scoreBag then
-        -- Make visible only to the owning player
+  local seatedPlayers = getSeatedPlayers()
+  local seatedColorSet = {}
+  
+  -- Create a set of seated player colors for quick lookup
+  for _, color in ipairs(seatedPlayers) do
+    seatedColorSet[color] = true
+  end
+  
+  -- Handle all player colors
+  for color, playerObj in pairs(GuidList.Players) do
+    local scoreBag = getObjectFromGUID(playerObj.Score)
+    if scoreBag then
+      if seatedColorSet[color] then
+        -- Seated player: Make visible only to the owning player
         scoreBag.setInvisibleTo(Functions.allButCurrentPlayer(color))
+      else
+        -- Empty seat: Hide completely
+        scoreBag.setInvisibleTo(Player.getColors())
       end
     end
   end
+end
+
+--- Calculates the correct position for a field based on its hand position
+--- @param color string Player color
+--- @param fieldType string Field type ('LeftField', 'MiddleField', or 'RightField')
+--- @return table|nil Position data {position, rotation, scale} or nil if hand not found
+local function calculateFieldPosition(color, fieldType)
+  local playerObj = GuidList.Players[color]
+  if not playerObj then 
+    log('calculateFieldPosition: No player object for color ' .. color)
+    return nil 
+  end
+  
+  local hand = getObjectFromGUID(playerObj.Hand)
+  if not hand then 
+    log('calculateFieldPosition: No hand found for color ' .. color)
+    return nil 
+  end
+  
+  local handPos = hand.getPosition()
+  local handRot = hand.getRotation()
+  local layout = PositionConfig.getFieldLayout(color)
+  
+  local fieldOffset
+  if fieldType == 'LeftField' then
+    fieldOffset = layout.left
+  elseif fieldType == 'MiddleField' then
+    fieldOffset = layout.middle
+  elseif fieldType == 'RightField' then
+    fieldOffset = layout.right
+  else
+    return nil
+  end
+  
+  local pos = {
+    position = handPos + fieldOffset,
+    rotation = handRot,
+    scale = PositionConfig.Fields.scale
+  }
+  log('calculateFieldPosition: ' .. color .. ' ' .. fieldType .. ' -> ' .. tostring(pos.position))
+  return pos
 end
 
 --- Shows fields for seated players (hides fields for non-seated players)
@@ -211,6 +263,8 @@ function GameSetup.showFieldsForSeatedPlayers()
     seatedColorSet[color] = true
   end
   
+  log('showFieldsForSeatedPlayers called - Seated players: ' .. table.concat(seatedPlayers, ', '))
+  
   -- For each player color, show or hide their fields
   for color, playerObj in pairs(GuidList.Players) do
     local isSeated = seatedColorSet[color] == true
@@ -221,32 +275,74 @@ function GameSetup.showFieldsForSeatedPlayers()
     local rightField = getObjectFromGUID(playerObj.RightField)
     
     local fields = {
-      {field = leftField, name = 'Left'},
-      {field = middleField, name = 'Middle'},
-      {field = rightField, name = 'Right'}
+      {field = leftField, name = 'Left', type = 'LeftField'},
+      {field = middleField, name = 'Middle', type = 'MiddleField'},
+      {field = rightField, name = 'Right', type = 'RightField'}
     }
     
     for _, fieldData in ipairs(fields) do
       local field = fieldData.field
       if field then
         local fieldGuid = field.getGUID()
+        -- Try to use stored position first, otherwise calculate it
         local storedPos = fieldPositions[fieldGuid]
+        if not storedPos then
+          log('  No stored position for ' .. color .. ' ' .. fieldData.name .. ', calculating...')
+          storedPos = calculateFieldPosition(color, fieldData.type)
+        else
+          log('  Using stored position for ' .. color .. ' ' .. fieldData.name)
+        end
         
         if isSeated then
           -- Move field back to its correct position and restore scale
           if storedPos then
-            field.setPosition(storedPos.position)
+            local oldPos = field.getPosition()
+            log('  ' .. color .. ' ' .. fieldData.name .. ': Moving from ' .. tostring(oldPos) .. ' to ' .. tostring(storedPos.position))
+            field.setPositionSmooth(storedPos.position, false, false)
             field.setRotation(storedPos.rotation)
             if storedPos.scale then
               field.setScale(storedPos.scale)
             end
+            field.interactable = false
+            field.locked = true
+            -- Initialize the field UI properly - do this after a short delay to ensure field has moved
+            Wait.time(function()
+              if field then
+                -- For right fields with 4+ players, keep them locked (don't unlock)
+                -- For other fields, unlock them
+                local playerCount = #getSeatedPlayers()
+                local shouldUnlock = fieldData.name ~= 'Right' or playerCount == 3
+                
+                if shouldUnlock then
+                  -- Call the field's unlockField function to properly set up UI
+                  pcall(function()
+                    field.call('unlockField')
+                  end)
+                else
+                  -- Right field for 4+ players: keep locked, set up locked field UI
+                  if field.UI then
+                    field.UI.show('field')
+                    field.UI.setAttribute('field', 'color', Constants.LockedFieldColor)
+                    field.UI.setAttribute('unlockFieldBtn', 'active', 'true')
+                  end
+                end
+                log('  ' .. color .. ' ' .. fieldData.name .. ': Initialized field UI (unlocked=' .. tostring(shouldUnlock) .. ')')
+              end
+            end, 0.2)
+          else
+            log('  ERROR: ' .. color .. ' ' .. fieldData.name .. ': No position data available!')
           end
         else
           -- Keep field far away (hidden)
           if storedPos then
+            log('  ' .. color .. ' ' .. fieldData.name .. ': Hiding (empty seat)')
             field.setPosition(storedPos.position + Vector(0, -1000, 0))
+            -- Keep non-seated fields non-interactable
+            field.interactable = false
           end
         end
+      else
+        log('  ERROR: Field not found for ' .. color .. ' ' .. fieldData.name)
       end
     end
   end
@@ -298,4 +394,5 @@ function GameSetup.setupAll(center, Functions)
 end
 
 return GameSetup
+
 

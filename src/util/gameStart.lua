@@ -53,6 +53,8 @@ function GameStart.combineBeanDecks(center, useVariant, callback)
     else
       local beanCard = getObjectFromGUID(beanData.Guid)
       if beanCard then
+        beanCard.locked = false
+        beanCard.interactable = true
         table.insert(cardsToClone, {
           card = beanCard,
           name = name,

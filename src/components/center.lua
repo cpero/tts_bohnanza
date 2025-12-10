@@ -162,6 +162,24 @@ function onLoad(script_state)
     end
   end
   
+  -- Fix score bag visibility and field positions on load
+  Wait.time(function()
+    if state.started then
+      -- Game has started: show bags to seated players, hide for empty seats
+      GameSetup.showScoreBags(Functions)
+      -- Also fix field positions for seated players
+      GameSetup.showFieldsForSeatedPlayers()
+    else
+      -- Game not started: hide all bags completely
+      for color, playerObj in pairs(GuidList.Players) do
+        local scoreBag = getObjectFromGUID(playerObj.Score)
+        if scoreBag then
+          scoreBag.setInvisibleTo(Player.getColors())
+        end
+      end
+    end
+  end, 0.5)
+  
   -- Update immediately (for already-seated players)
   updateButtonStates()
   

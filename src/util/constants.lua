@@ -1,6 +1,6 @@
 local Constants = {}
 
-Constants.DEBUG = true
+Constants.DEBUG = false
 
 Constants.AvailableColors =
 { 'White', 'Red', 'Orange', 'Yellow', 'Green', 'Pink', 'Purple' }
