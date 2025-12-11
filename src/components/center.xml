@@ -1,7 +1,8 @@
 <Panel position='0 0 -26'>
   <Panel id='tableSetup' active='true'>
     <Button id='startGameBtn' height='800' width='2000' fontSize='200' position='0 0 0'
-      tooltip='Click here once all players are seated. Requires at least 3 players.' onClick='onClickStartGame' interactable='true'>Start Game</Button>
+      tooltip='Click here once all players are seated. Requires at least 3 players.'
+      onClick='onClickStartGame' interactable='true'>Start Game</Button>
     <ToggleButton id='toggleVariantBtn' height='400' width='2000' fontSize='150' position='0 -800 0'
       color='green' isOn='true' text='Variant Mode: Enabled' onClick='onClickToggleVariant' />
     <Text fontSize='100' position='0 -1400 0' color='white'>
@@ -13,8 +14,14 @@
     <Panel id='draw' height='1200' width='800' position='-600 0 0'>
       <Text fontSize='100' color='white'>Draw Pile</Text>
     </Panel>
+    <Button id='flip2Btn' height='200' width='800' fontSize='120' position='-600 -1000 0'
+      tooltip='Flip the top 2 cards from the draw deck' onClick='onClickFlip2' interactable='true'>Flip
+      2</Button>
     <Panel id='discard' height='1200' width='800' position='600 0 0'>
       <Text fontSize='100' color='white'>Discard Pile</Text>
     </Panel>
+    <Button id='shuffleBtn' height='200' width='800' fontSize='120' position='600 -1000 0'
+      tooltip='Shuffle the discard pile into the draw pile' onClick='onClickShuffle'
+      interactable='true' active='false'>Shuffle</Button>
   </Panel>
 </Panel>

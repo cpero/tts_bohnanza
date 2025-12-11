@@ -94,21 +94,30 @@ end
 
 --- Flips and shuffles the main deck
 --- @param deck table The deck to shuffle
-function GameStart.shuffleDeck(deck)
+--- @param incrementCount boolean Whether to increment shuffle count (default: false for initial shuffle)
+function GameStart.shuffleDeck(deck, incrementCount)
   if not deck then
     log('ERROR: Cannot shuffle nil deck')
     return
   end
-  
-  log('Flipping deck face-down and shuffling...')
   
   -- Flip deck face down if it's face up
   if not deck.is_face_down then
     deck.flip()
   end
   
-  -- Shuffle the deck
-  deck.shuffle()
+  -- Wait a moment for flip animation, then shuffle
+  Wait.time(function()
+    if deck and not deck.isDestroyed() then
+      -- Shuffle the deck
+      deck.shuffle()
+      
+      -- Increment count if requested (for reshuffles, not initial shuffle)
+      if incrementCount then
+        -- This will be handled by the caller
+      end
+    end
+  end, 0.2)
 end
 
 --- Deals cards to all seated players
@@ -185,13 +194,35 @@ function GameStart.startGame(center, variantEnabled, cardsPerPlayer)
     end
     
     if deck then
-      -- Flip and shuffle immediately
-      GameStart.shuffleDeck(deck)
+      -- Move deck to draw zone position (if zones exist)
+      -- The deck should already be near the draw zone position, but ensure it's there
+      local drawZonePos = centerPos + Vector(-6, 0.1, 0)
+      deck.setPositionSmooth(drawZonePos + Vector(0, 2, 0), false, false)
       
-      -- Wait for shuffle animation, then deal
+      -- Wait for deck to settle in zone, then flip and shuffle
       Wait.time(function()
-        GameStart.dealCards(deck, cardsPerPlayer)
-      end, 1)
+        if deck and not deck.isDestroyed() then
+          -- Flip deck face down if it's face up
+          if not deck.is_face_down then
+            deck.flip()
+          end
+          
+          -- Wait for flip animation, then shuffle
+          Wait.time(function()
+            if deck and not deck.isDestroyed() then
+              -- Shuffle the deck
+              deck.shuffle()
+              
+              -- Wait for shuffle animation, then deal
+              Wait.time(function()
+                if deck and not deck.isDestroyed() then
+                  GameStart.dealCards(deck, cardsPerPlayer)
+                end
+              end, 1)
+            end
+          end, 0.3)
+        end
+      end, 0.5)
     else
       log('ERROR: Deck not found after combining')
     end

@@ -10,7 +10,6 @@ local function getTableDimensions()
   -- Use the table surface object directly by GUID (4ee1f2)
   local tableSurface = getObjectFromGUID('4ee1f2')
   if not tableSurface then
-    log('WARNING: Table surface (4ee1f2) not found, using default scale 1.0')
     return 1.0, 1.0
   end
   
@@ -173,18 +172,6 @@ PositionConfig.CenterSnapPoints = {
 --- @return number The scale factor to apply to cards
 function PositionConfig.getCardScale()
   local scale = PositionConfig.Cards.getScale()
-  local width, depth = getTableDimensions()
-  
-  log('=== CARD SCALING INFORMATION ===')
-  log('Table surface (4ee1f2) dimensions: ' .. width .. ' x ' .. depth)
-  log('Recommended card scale: ' .. scale)
-  log('Instructions:')
-  log('1. Select all bean deck objects in TTS')
-  log('2. Set their scale to: ' .. scale)
-  log('3. Save the game')
-  log('4. Cards will now be properly scaled relative to the table')
-  log('================================')
-  print('Table: ' .. width .. ' x ' .. depth .. ' | Card scale: ' .. scale)
   return scale
 end
 

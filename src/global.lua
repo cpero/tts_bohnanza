@@ -17,6 +17,9 @@ function onLoad(script_state)
     state = JSON.decode(script_state)
   end
   
+  -- Disable turns on load (they will be enabled when game starts)
+  Turns.enable = false
+  
   -- Always run setupGame in DEBUG mode to ensure fields are positioned
   -- Or run if this is the first load (stage == 1)
   if Constants.DEBUG or state.stage == 1 then

@@ -219,13 +219,11 @@ end
 local function calculateFieldPosition(color, fieldType)
   local playerObj = GuidList.Players[color]
   if not playerObj then 
-    log('calculateFieldPosition: No player object for color ' .. color)
     return nil 
   end
   
   local hand = getObjectFromGUID(playerObj.Hand)
   if not hand then 
-    log('calculateFieldPosition: No hand found for color ' .. color)
     return nil 
   end
   
@@ -249,7 +247,6 @@ local function calculateFieldPosition(color, fieldType)
     rotation = handRot,
     scale = PositionConfig.Fields.scale
   }
-  log('calculateFieldPosition: ' .. color .. ' ' .. fieldType .. ' -> ' .. tostring(pos.position))
   return pos
 end
 
@@ -262,8 +259,6 @@ function GameSetup.showFieldsForSeatedPlayers()
   for _, color in ipairs(seatedPlayers) do
     seatedColorSet[color] = true
   end
-  
-  log('showFieldsForSeatedPlayers called - Seated players: ' .. table.concat(seatedPlayers, ', '))
   
   -- For each player color, show or hide their fields
   for color, playerObj in pairs(GuidList.Players) do
@@ -287,17 +282,13 @@ function GameSetup.showFieldsForSeatedPlayers()
         -- Try to use stored position first, otherwise calculate it
         local storedPos = fieldPositions[fieldGuid]
         if not storedPos then
-          log('  No stored position for ' .. color .. ' ' .. fieldData.name .. ', calculating...')
           storedPos = calculateFieldPosition(color, fieldData.type)
-        else
-          log('  Using stored position for ' .. color .. ' ' .. fieldData.name)
         end
         
         if isSeated then
           -- Move field back to its correct position and restore scale
           if storedPos then
             local oldPos = field.getPosition()
-            log('  ' .. color .. ' ' .. fieldData.name .. ': Moving from ' .. tostring(oldPos) .. ' to ' .. tostring(storedPos.position))
             field.setPositionSmooth(storedPos.position, false, false)
             field.setRotation(storedPos.rotation)
             if storedPos.scale then
@@ -326,23 +317,17 @@ function GameSetup.showFieldsForSeatedPlayers()
                     field.UI.setAttribute('unlockFieldBtn', 'active', 'true')
                   end
                 end
-                log('  ' .. color .. ' ' .. fieldData.name .. ': Initialized field UI (unlocked=' .. tostring(shouldUnlock) .. ')')
               end
             end, 0.2)
-          else
-            log('  ERROR: ' .. color .. ' ' .. fieldData.name .. ': No position data available!')
           end
         else
           -- Keep field far away (hidden)
           if storedPos then
-            log('  ' .. color .. ' ' .. fieldData.name .. ': Hiding (empty seat)')
             field.setPosition(storedPos.position + Vector(0, -1000, 0))
             -- Keep non-seated fields non-interactable
             field.interactable = false
           end
         end
-      else
-        log('  ERROR: Field not found for ' .. color .. ' ' .. fieldData.name)
       end
     end
   end
